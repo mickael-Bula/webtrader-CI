@@ -5,3 +5,7 @@
 services:
     App\Service\DataScraper:
         public: true
+        arguments:
+            # injecte la dépendance HttpClientInterface dans le constructeur de DataScraper lors des tests
+            # (cette déclaration est nécessaire car, lors des tests, un container de services spécifique est utilisé)
+          [ '@Symfony\Contracts\HttpClient\HttpClientInterface' ]

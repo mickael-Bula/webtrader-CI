@@ -59,3 +59,44 @@ $ $dataScraper = $I->grabService(DataScraper::class);	// veiller à utiliser le 
 # Les méthodes du service sont alors accessibles :
 $result = $dataScraper->getData($_ENV['CAC_DATA']);
 ```
+
+## Utilisation de l'interface HttpClientInterface
+
+Plutôt que d'instancier HttpClient dans la méthode DataScraper::getData, j'opte pour l'injection de dépendance.
+Pour ce faire, j'injecte HttpClientInterface dans le constructeur de la classe DataScraper,
+puis j'utilise la propriété résultante pour gérer les requêtes http :
+
+```php
+class DataScraper
+{
+    private HttpClientInterface $client;
+
+    public function __construct(HttpClientInterface $client)
+    {
+        $this->client = $client;
+    }
+
+    public function getCrawler($url): Crawler
+    {
+    }
+        $response = $this->client->request('GET', $url);
+        // ...
+    }
+```
+
+En procédant de la sorte, une instance de HttpClient est immédiatement servie par le container de services,
+sans configuration complémentaire dans le fichier services.yaml.
+
+Cependant, un container spécifique étant utilisé pour les tests, il faut préciser dans le fichier services_test.yaml
+la dépendance injectée, sinon une erreur est lancée par codeception. Voici la configuration :
+
+```yaml
+services:
+    App\Service\DataScraper:
+        public: true
+        arguments:
+            # injecte la dépendance HttpClientInterface dans le constructeur de DataScraper lors des tests
+          [ '@Symfony\Contracts\HttpClient\HttpClientInterface' ]
+```
+
+De cette manière, HttpClientInterface est injecté dans le constructeur de la classe DataScraper lors des tests.

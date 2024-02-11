@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -12,6 +12,13 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 
 class DataScraper
 {
+    private HttpClientInterface $client;
+
+    public function __construct(HttpClientInterface $client)
+    {
+        $this->client = $client;
+    }
+
     /**
      * @param $url
      * @return Crawler
@@ -20,10 +27,9 @@ class DataScraper
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public static function getCrawler($url): Crawler
+    public function getCrawler($url): Crawler
     {
-        $client = HttpClient::create();
-        $response = $client->request('GET', $url);
+        $response = $this->client->request('GET', $url);
 
         // Récupère le contenu de la réponse
         $htmlContent = $response->getContent();
@@ -39,7 +45,7 @@ class DataScraper
     public function getData($url): array|string
     {
         try {
-            $crawler = self::getCrawler($url);
+            $crawler = $this->getCrawler($url);
 
             return $crawler
                 ->filter('table > tbody > tr > td')
