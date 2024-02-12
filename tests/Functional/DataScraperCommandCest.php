@@ -114,9 +114,13 @@ class DataScraperCommandCest
         $dataScraper = $I->grabService(DataScraper::class);
 
         // Exécute la méthode getData() du service avec l'URL en argument
-        $result = $dataScraper->getData('bad/url');
-
-        // Vérifie qu'un message d'erreur est affiché en console
-        $I->assertStringContainsString('Erreur lors de la création du crawler', $result);
+        try {
+            $dataScraper->getData('bad/url');
+            // Si aucune exception n'est levée, le test échoue
+            $I->fail('Une exception aurait dû être levée pour une URL invalide.');
+        } catch (\RuntimeException $e) {
+            // Vérifie que le message d'erreur contient la phrase attendue
+            $I->assertStringContainsString('Erreur lors de la création du crawler', $e->getMessage());
+        }
     }
 }

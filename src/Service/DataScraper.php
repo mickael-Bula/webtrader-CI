@@ -62,7 +62,11 @@ class DataScraper
                 ->filter('table > tbody > tr > td')
                 ->each(fn ($node) => $node->text('rien à afficher'));
         } catch (ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
-            return sprintf('Erreur lors de la création du crawler : %s', $e->getMessage());
+            throw new \RuntimeException(
+                sprintf('Erreur lors de la création du crawler : %s', $e->getMessage()),
+                1,
+                $e
+            );
         }
     }
 }

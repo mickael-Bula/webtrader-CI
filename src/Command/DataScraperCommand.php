@@ -33,11 +33,15 @@ class DataScraperCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        // Appel du service DataScraper pour récupérer les cotations du Cac
-        $cacData = $this->dataScraper->getData($_ENV['CAC_DATA']);
+        try {
+            // Appel du service DataScraper pour récupérer les cotations du Cac
+            $cacData = $this->dataScraper->getData($_ENV['CAC_DATA']);
+        } catch (\Exception $e) {
+            // Si une exception est levée, afficher l'erreur et retourner un code d'échec
+            $io->error('Erreur lors de la récupération des données : ' . $e->getMessage());
 
-        // Il faut vérifier (tester) lorsqu'une exception est levée
-        // et que la chaîne 'Erreur lors de la création du crawler' retournée
+            return Command::FAILURE;
+        }
 
         // Si le résultat est un tableau vide, c'est qu'aucune donnée n'a été récupérée
         if (!is_array($cacData) || count($cacData) === 0) {
