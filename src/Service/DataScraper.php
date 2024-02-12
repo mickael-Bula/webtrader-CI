@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -21,6 +22,16 @@ class DataScraper
 
     /**
      * @param $url
+     * @return ResponseInterface
+     * @throws TransportExceptionInterface
+     */
+    public function getResponseFromHttpClient($url): ResponseInterface
+    {
+        return $this->client->request('GET', $url);
+    }
+
+    /**
+     * @param $url
      * @return Crawler
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
@@ -29,7 +40,7 @@ class DataScraper
      */
     public function getCrawler($url): Crawler
     {
-        $response = $this->client->request('GET', $url);
+        $response = $this->GetResponseFromHttpClient($url);
 
         // Récupère le contenu de la réponse
         $htmlContent = $response->getContent();

@@ -3,6 +3,7 @@
 
 namespace App\Tests\Functional;
 
+use Codeception\Util\HttpCode;
 use App\Tests\Support\FunctionalTester;
 use App\Service\DataScraper;
 use Symfony\Component\DomCrawler\Crawler;
@@ -43,6 +44,32 @@ class DataScraperCommandCest
     {
         $I->runShellCommand('php bin/console app:data:scraper');
         $I->seeShellOutputMatches('/Les données ont été importées avec succès./');
+    }
+
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function testCacDataResponseIsOk(FunctionalTester $I): void
+    {
+        $dataScraper = $I->grabService(DataScraper::class);
+
+        $response = $dataScraper->getResponseFromHttpClient($_ENV['CAC_DATA']);
+        $responseCode = $response->getStatusCode();
+        $I->assertEquals($responseCode, HttpCode::OK, "Test la récupération des données du Cac");
+    }
+
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function testLvcDataResponseIsOk(FunctionalTester $I): void
+    {
+        $dataScraper = $I->grabService(DataScraper::class);
+
+        $response = $dataScraper->getResponseFromHttpClient($_ENV['LVC_DATA']);
+        $responseCode = $response->getStatusCode();
+        $I->assertEquals($responseCode, HttpCode::OK, "Test la récupération des données du Lvc");
     }
 
     /**
