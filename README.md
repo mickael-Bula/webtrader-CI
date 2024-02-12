@@ -48,6 +48,7 @@ La déclaration se fait de la manière suivante :
     services:
         App\Service\DataScraper:
             public: true
+            arguments: [ '@Symfony\Contracts\HttpClient\HttpClientInterface' ]
 ```
 
 Je déclare un service pour faire les traitements qui seront appelés dans la commande
@@ -100,3 +101,34 @@ services:
 ```
 
 De cette manière, HttpClientInterface est injecté dans le constructeur de la classe DataScraper lors des tests.
+
+## Test de la commande DataScraper
+
+J'ai créé un test qui vérifie le résultat de la commande lorsque la méthode getData() ne retourne pas un tableau ou 
+que celui-ci est vide.
+
+J'ai tenté de l'implémenter avec codeception, mais sans succès : j'ai obtenu une erreur signalant ceci :
+
+```
+Fatal error: Uncaught ArgumentCountError: Too few arguments to function PHPUnit\Framework\TestCase::__construct(), 
+0 passed in C:\laragon\www\stocks_from_csv\vendor\codeception\codeception\src\Codeception\Test\Loader\Cest.php on 
+line 57 and exactly 1 expected in C:\laragon\www\stocks_from_csv\vendor\phpunit\phpunit\src\Framework\TestCase.php 
+on line 322
+```
+
+Pour résoudre le problème, j'ai décidé d'exécuter ce test directement avec phpUnit.
+Voici les commandes pour l'installer puis exécuter le test :
+
+```bash
+$ composer require --dev phpunit/phpunit
+$ php vendor/bin/phpunit tests/Unit/DataScraperCommandTest.php
+```
+
+Avec ces modifications, le test passe.
+
+>NOTE : Le fait de nommer la classe DataScraperCommandTest à la place de DataScraperCommandCest permet d'exécuter les 
+> tests avec phpUnit exécuté depuis codeception
+
+```bash
+$ php vendor\bin\codecept run Unit
+```

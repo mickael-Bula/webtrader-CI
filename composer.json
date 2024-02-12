@@ -76,6 +76,8 @@
         "codeception/module-rest": "^3.3",
         "codeception/module-symfony": "^3.3",
         "fakerphp/faker": "^1.23",
+        "phpunit/phpunit": "^10.5",
+        "roave/security-advisories": "dev-latest",
         "symfony/maker-bundle": "^1.53"
     }
 }
