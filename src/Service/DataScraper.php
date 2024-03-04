@@ -58,15 +58,23 @@ class DataScraper
         try {
             $crawler = $this->getCrawler($url);
 
-            return $crawler
-                ->filter('table > tbody > tr > td')
-                ->each(fn ($node) => $node->text('rien à afficher'));
-        } catch (ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
+            return $this->parseData($crawler);
+        } catch (ClientExceptionInterface|TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
             throw new \RuntimeException(
                 sprintf('Erreur lors de la création du crawler : %s', $e->getMessage()),
                 1,
                 $e
             );
         }
+    }
+
+    /**
+     * @param Crawler $crawler
+     * @return array
+     */
+    public function parseData(Crawler $crawler): array
+    {
+        return $crawler->filter('table > tbody > tr > td')
+            ->each(fn ($node) => $node->text('rien à afficher'));
     }
 }

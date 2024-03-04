@@ -123,4 +123,23 @@ class DataScraperCommandCest
             $I->assertStringContainsString('Erreur lors de la création du crawler', $e->getMessage());
         }
     }
+
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function testParseDataReturnsArray(FunctionalTester $I): void
+    {
+        // Récupère une instance du service DataScraper
+        $dataScraper = $I->grabService(DataScraper::class);
+
+        // Exécute la méthode getData() du service avec l'URL en argument
+        $crawler = $dataScraper->getCrawler($_ENV['CAC_DATA']);
+
+        // Exécute la méthode ParseData avec le crawler en paramètre
+        $result = $dataScraper->ParseData($crawler);
+
+        // Vérifie que le résultat est un tableau
+        $I->assertIsArray($result);
+    }
 }
