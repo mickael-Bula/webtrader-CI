@@ -4,9 +4,11 @@
 namespace App\Tests\Functional;
 
 use Codeception\Util\HttpCode;
+use Doctrine\ORM\Query\Expr\Func;
 use App\Tests\Support\FunctionalTester;
 use App\Service\DataScraper;
 use Symfony\Component\DomCrawler\Crawler;
+use function PHPUnit\Framework\isInstanceOf;
 
 class DataScraperCommandCest
 {
@@ -141,5 +143,83 @@ class DataScraperCommandCest
 
         // Vérifie que le résultat est un tableau
         $I->assertIsArray($result);
+    }
+
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function testResultIsAnArrayOfArrays(FunctionalTester $I): void
+    {
+        // Récupère une instance du service DataScraper
+        $dataScraper = $I->grabService(DataScraper::class);
+
+        // Exécute la méthode getData() du service avec l'URL en argument
+        $crawler = $dataScraper->getCrawler($_ENV['CAC_DATA']);
+
+        // Exécute la méthode ParseData avec le crawler en paramètre
+        $result = $dataScraper->ParseData($crawler);
+
+        // Vérifie que le résultat est un tableau de sous-tableaux
+        $isArray = true;
+        foreach ($result as $row) {
+            if (!is_array($row)) {
+                $isArray = false;
+                break;
+            }
+        }
+        $I->assertTrue($isArray);
+    }
+
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function testLengthOfEachRowInArrayResultEqualsFive(FunctionalTester $I): void
+    {
+        // Récupère une instance du service DataScraper
+        $dataScraper = $I->grabService(DataScraper::class);
+
+        // Exécute la méthode getData() du service avec l'URL en argument
+        $crawler = $dataScraper->getCrawler($_ENV['CAC_DATA']);
+
+        // Exécute la méthode ParseData avec le crawler en paramètre
+        $result = $dataScraper->ParseData($crawler);
+
+        // Vérifie que les sous-tableaux de résultat contiennent 5 valeurs
+        $lengthEqualsFive = true;
+        foreach ($result as $row) {
+            if (count($row) !== 5) {
+                $lengthEqualsFive = false;
+                break;
+            }
+        }
+        $I->assertTrue($lengthEqualsFive);
+    }
+
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function testFirstIndexOfEachRowInArrayResultIsDateFormat(FunctionalTester $I): void
+    {
+        // Récupère une instance du service DataScraper
+        $dataScraper = $I->grabService(DataScraper::class);
+
+        // Exécute la méthode getData() du service avec l'URL en argument
+        $crawler = $dataScraper->getCrawler($_ENV['CAC_DATA']);
+
+        // Exécute la méthode ParseData avec le crawler en paramètre
+        $result = $dataScraper->ParseData($crawler);
+
+        // Vérifie que le premier indice de chaque ligne est une chaîne de caractère au format jj/mm/aaaa
+        $isDateFormat = true;
+        foreach ($result as $row) {
+            if (!preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0])) {
+                $isDateFormat = false;
+                break;
+            }
+        }
+        $I->assertTrue($isDateFormat);
     }
 }

@@ -74,7 +74,16 @@ class DataScraper
      */
     public function parseData(Crawler $crawler): array
     {
-        return $crawler->filter('table > tbody > tr > td')
+        $rawData = $crawler->filter('table > tbody > tr > td')
             ->each(fn ($node) => $node->text('rien à afficher'));
+
+        // la fonction array_chunk() divise le tableau passé en paramètre avec une taille fixée par le second
+        $splitData = array_chunk($rawData, 7);
+
+        // je filtre le tableau de résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower)
+        $shrinkData = array_map(static fn($chunk) => array_slice($chunk, 0, 5), $splitData);
+
+        // on trie $shrinkData en vérifiant que le premier indice est une date au format jj/mm/aaaa
+        return array_filter($shrinkData, static fn($row) => preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0]));
     }
 }

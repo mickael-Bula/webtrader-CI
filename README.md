@@ -5,6 +5,8 @@ php vendor\bin\codecept generate Functional DataScraper  # génère une suite de
 php vendor\bin\codecept run Functional  # lance les tests du répertoire indiqué
 php vendor\bin\codecept clean   # supprime le cache de codeception
 php vendor\bin\codecept build   # reconstruit les classes de test
+php vendor\bin\codecept run unit --filter getData  # teste uniquement la méthode getData du répertoire Unit
+
 ```
 
 ## Ajout du module CLI de Codeception
