@@ -50,7 +50,9 @@ class DataScraperCommand extends Command
             return Command::FAILURE;
         }
 
-        // Autrement, on structure les données utiles (cela ne devrait-il pas être fait en amont ?)
+        // Les données utiles sont disponibles
+
+        //TODO : il faut que la classe DataScraper retourne un tableau avec les seules données utiles structurées
 
         $io->success('Les données ont été importées avec succès.');
 

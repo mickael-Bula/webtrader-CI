@@ -24,7 +24,6 @@ class DataScraperCommandCest
         $I->assertNotNull($dataScraperService);
     }
 
-
     /**
      * @param FunctionalTester $I
      * @return void
@@ -92,7 +91,7 @@ class DataScraperCommandCest
      * @param FunctionalTester $I
      * @return void
      */
-    public function testGetDataResultIsArray(FunctionalTester $I): void
+    public function testGetDataResultIsArrayAndIsNotEmpty(FunctionalTester $I): void
     {
         // Récupère une instance du service DataScraper
         $dataScraper = $I->grabService(DataScraper::class);
@@ -100,8 +99,9 @@ class DataScraperCommandCest
         // Exécute la méthode getData() du service avec l'URL en argument
         $result = $dataScraper->getData($_ENV['CAC_DATA']);
 
-        // Vérifie que le résultat est un tableau
+        // Vérifie que le résultat est un tableau et qu'il n'est pas vide
         $I->assertIsArray($result);
+        $I->assertNotCount(0, $result);
     }
 
     /**

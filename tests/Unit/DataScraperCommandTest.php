@@ -92,4 +92,38 @@ class DataScraperCommandTest extends TestCase
         $this->assertStringContainsString('Erreur de récupération des données', $output);
     }
 
+    public function testErrorMessageIsDisplayedWhenGetDataResponseIsNotAnArrayOrArrayIsEmpty(): void
+    {
+        // Crée un mock de HttpClientInterface
+        $httpClientMock = $this->getMockBuilder(HttpClientInterface::class)
+            ->getMock();
+
+        // Crée un double de la classe DataScraper pour que la méthode getData() ne retourne pas un tableau
+        $dataScraperMock = $this->getMockBuilder(DataScraper::class)
+            ->onlyMethods(['getData'])
+            ->setConstructorArgs([$httpClientMock])
+            ->getMock();
+
+        $dataScraperMock->method('getData')->willReturn('something');
+
+        // Je crée une instance de la commande DataScraperCommand
+        $application = new Application();
+        $application->add(new DataScraperCommand($dataScraperMock));
+
+        // Je crée un testeur de commande
+        $command = $application->find('app:data:scraper');
+        $commandTester = new CommandTester($command);
+
+        // Exécute la commande
+        $statusCode = $commandTester->execute([]);
+
+        // Je récupère la sortie de la commande en console
+        $output = $commandTester->getDisplay();
+
+        // Vérifie que le code de retour est 1
+        $this->assertEquals(1, $statusCode);
+
+        // Vérifie la sortie en console
+        $this->assertStringContainsString('Aucune données récupérées depuis le site', $output);
+    }
 }
