@@ -74,16 +74,45 @@ class DataScraper
      */
     public function parseData(Crawler $crawler): array
     {
-        $rawData = $crawler->filter('table > tbody > tr > td')
-            ->each(fn ($node) => $node->text('rien à afficher'));
+        $rawData = $this->filterData($crawler);
 
-        // la fonction array_chunk() divise le tableau passé en paramètre avec une taille fixée par le second
-        $splitData = array_chunk($rawData, 7);
+        // On divise les données recueillies par groupes de sept
+        $splitData = $this->dataChunk($rawData);
 
-        // je filtre le tableau de résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower)
-        $shrinkData = array_map(static fn($chunk) => array_slice($chunk, 0, 5), $splitData);
+        // Filtre les résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower)
+        $shrinkData = $this->shrinkData($splitData);
 
         // on trie $shrinkData en vérifiant que le premier indice est une date au format jj/mm/aaaa
         return array_filter($shrinkData, static fn($row) => preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0]));
+    }
+
+    /**
+     * @param Crawler $crawler
+     * @return array
+     */
+    public function filterData(Crawler $crawler): array
+    {
+        return $crawler->filter('table > tbody > tr > td')
+            ->each(fn ($node) => $node->text('rien à afficher'));
+    }
+
+    /**
+     * La fonction array_chunk() divise le tableau passé en paramètre avec une taille fixée par le second
+     * @param $data
+     * @return array
+     */
+    public function dataChunk($data): array
+    {
+        return array_chunk($data, 7);
+    }
+
+    /**
+     * Réduit chacune des lignes d'un tableau à ses 5 premiers indices
+     * @param $data
+     * @return array
+     */
+    public function shrinkData($data): array
+    {
+        return array_map(static fn($chunk) => array_slice($chunk, 0, 5), $data);
     }
 }

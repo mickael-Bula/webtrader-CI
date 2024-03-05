@@ -171,11 +171,7 @@ class DataScraperCommandCest
         $I->assertTrue($isArray);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
-    public function testLengthOfEachRowInArrayResultEqualsFive(FunctionalTester $I): void
+    public function testFilterDataReturnsAnArray(FunctionalTester $I): void
     {
         // Récupère une instance du service DataScraper
         $dataScraper = $I->grabService(DataScraper::class);
@@ -183,10 +179,64 @@ class DataScraperCommandCest
         // Exécute la méthode getData() du service avec l'URL en argument
         $crawler = $dataScraper->getCrawler($_ENV['CAC_DATA']);
 
-        // Exécute la méthode ParseData avec le crawler en paramètre
-        $result = $dataScraper->ParseData($crawler);
+        // Exécute la méthode FilterData avec le crawler en paramètre
+        $result = $dataScraper->filterData($crawler);
 
-        // Vérifie que les sous-tableaux de résultat contiennent 5 valeurs
+        // Vérifie que le résultat est un tableau
+        $I->assertIsArray($result);
+    }
+
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function testDataChunkReturnsAnArrayWithRowsOfSevenValues(FunctionalTester $I): void
+    {
+        // Récupère une instance du service DataScraper
+        $dataScraper = $I->grabService(DataScraper::class);
+
+        // Exécute la méthode getData() du service avec l'URL en argument
+        $crawler = $dataScraper->getCrawler($_ENV['CAC_DATA']);
+
+        // Exécute la méthode filterData avec le crawler en paramètre
+        $rawData = $dataScraper->filterData($crawler);
+
+        // Exécute la méthode dataChunk
+        $result = $dataScraper->dataChunk($rawData);
+
+        // Vérifie que les sous-tableaux de résultat contiennent 7 valeurs
+        $lengthEqualsSeven = true;
+        foreach ($result as $row) {
+            if (count($row) !== 7) {
+                $lengthEqualsSeven = false;
+                break;
+            }
+        }
+        $I->assertTrue($lengthEqualsSeven);
+    }
+
+    /**
+     * @param FunctionalTester $I
+     * @return void
+     */
+    public function testShrinkDataReturnsAnArrayWithRowsOfFiveValues(FunctionalTester $I): void
+    {
+        // Récupère une instance du service DataScraper
+        $dataScraper = $I->grabService(DataScraper::class);
+
+        // Exécute la méthode getData() du service avec l'URL en argument
+        $crawler = $dataScraper->getCrawler($_ENV['CAC_DATA']);
+
+        // Exécute la méthode filterData avec le crawler en paramètre
+        $rawData = $dataScraper->filterData($crawler);
+
+        // Exécute la méthode dataChunk
+        $dataChunk = $dataScraper->dataChunk($rawData);
+
+        // Exécute la méthode shrinkData
+        $result = $dataScraper->shrinkData($dataChunk);
+
+        // Vérifie que chaque ligne contient 5 valeurs
         $lengthEqualsFive = true;
         foreach ($result as $row) {
             if (count($row) !== 5) {
@@ -201,7 +251,7 @@ class DataScraperCommandCest
      * @param FunctionalTester $I
      * @return void
      */
-    public function testFirstIndexOfEachRowInArrayResultIsDateFormat(FunctionalTester $I): void
+    public function testFirstIndexOfParseDataResultIsDateFormat(FunctionalTester $I): void
     {
         // Récupère une instance du service DataScraper
         $dataScraper = $I->grabService(DataScraper::class);
@@ -209,8 +259,8 @@ class DataScraperCommandCest
         // Exécute la méthode getData() du service avec l'URL en argument
         $crawler = $dataScraper->getCrawler($_ENV['CAC_DATA']);
 
-        // Exécute la méthode ParseData avec le crawler en paramètre
-        $result = $dataScraper->ParseData($crawler);
+        // Exécute la méthode parseData avec le crawler en paramètre
+        $result = $dataScraper->parseData($crawler);
 
         // Vérifie que le premier indice de chaque ligne est une chaîne de caractère au format jj/mm/aaaa
         $isDateFormat = true;
