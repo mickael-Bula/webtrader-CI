@@ -14,6 +14,7 @@
         "symfony/dotenv": "6.4.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.4.*",
+        "symfony/http-client": "6.4.*",
         "symfony/runtime": "6.4.*",
         "symfony/security-bundle": "6.4.*",
         "symfony/yaml": "6.4.*"
@@ -69,11 +70,14 @@
     "require-dev": {
         "codeception/codeception": "^5.1",
         "codeception/module-asserts": "^3.0",
+        "codeception/module-cli": "^2.0",
         "codeception/module-doctrine2": "^3.0",
         "codeception/module-phpbrowser": "^3.0",
         "codeception/module-rest": "^3.3",
         "codeception/module-symfony": "^3.3",
         "fakerphp/faker": "^1.23",
+        "phpunit/phpunit": "^10.5",
+        "roave/security-advisories": "dev-latest",
         "symfony/maker-bundle": "^1.53"
     }
 }

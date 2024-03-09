@@ -13,5 +13,7 @@ jobs:
             - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
             - uses: php-actions/composer@v6
             - run: echo "Composer dependencies have been installed"
-              # spécifie le fichier de configuration phpunit.xml à utiliser avec l'option -c (--configuration)
-            - run: vendor/bin/phpunit -c phpunit.xml.dist
+            # spécifie le fichier de configuration phpunit.xml à utiliser avec l'option -c (--configuration)
+            - run: vendor/bin/phpunit
+            # spécifie le fichier de configuration de codeception pour la CI de github action avec l'option -c
+            - run: vendor/bin/codecept run -c github-codeception-config.yaml

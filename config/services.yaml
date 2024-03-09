@@ -22,3 +22,11 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # J'ajoute une déclaration explicite du service injecté dans la commande,
+    # bien qu'elle ne soit pas requise (améliore la lisibilité)
+    App\Command\DataScraperCommand:
+        tags:
+            - { name: 'console.command' }
+        arguments:
+            $dataScraper: '@App\Service\DataScraper'
