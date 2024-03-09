@@ -10,8 +10,18 @@ actor_suffix: Tester
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
-params:
-    - .env.test.local
+env:
+    local:
+        # Configuration spécifique à l'environnement local
+        modules:
+            config:
+                env_file: .env.test.local
+    github_actions:
+        # Configuration spécifique à GitHub Actions
+        modules:
+            config:
+                env:
+                    APP_ENV: test
 settings:
     shuffle: true
     colors: true
