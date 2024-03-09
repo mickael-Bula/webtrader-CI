@@ -11,7 +11,7 @@ extensions:
     enabled:
         - Codeception\Extension\RunFailed
 params:
-    - .env.test.local
+    - .env.test
 settings:
     shuffle: true
     colors: true

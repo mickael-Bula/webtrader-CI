@@ -15,4 +15,4 @@ jobs:
             - run: echo "Composer dependencies have been installed"
               # spécifie le fichier de configuration phpunit.xml à utiliser avec l'option -c (--configuration)
             - run: vendor/bin/phpunit
-            - run: vendor/bin/codecept run
+            - run: vendor/bin/codecept run -c github-codeception-config.yaml
