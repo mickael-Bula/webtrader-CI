@@ -5,8 +5,10 @@ name: CI
 on: [ push, pull_request ]
 
 env:
+    APP_ENV: 'test'
     CAC_DATA: 'https://fr.investing.com/indices/france-40-historical-data'
     LVC_DATA: 'https://www.investing.com/etfs/lyxor-leverage-cac-40-historical-data'
+    KERNEL_CLASS: 'App\Kernel'
 
 jobs:
     test:
