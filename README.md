@@ -135,6 +135,28 @@ Avec ces modifications, le test passe.
 $ php vendor\bin\codecept run Unit
 ```
 
-## Création d'une chaîne CI avec GithubAction
+## Création d'une chaîne CI avec Github Actions
 
-TODO : https://dev.to/icolomina/using-github-actions-to-execute-your-php-tests-after-every-push-2lpp
+Pour configurer la CI, il est possible de se référer à la source suivante sur 
+[dev.to](https://dev.to/icolomina/using-github-actions-to-execute-your-php-tests-after-every-push-2lpp).
+
+Cependant, pour que les tests phpunit et codeception s'exécutent dans tous les environnements,
+il faut déclarer les variables dans plusieurs fichiers.
+
+Pour l'environnement de test local :
+- pour phpunit, elles doivent être déclarées dans le fichier `.env.local`
+- pour codeception, c'est dans les fichiers `.env.test` et `codeception.yaml`
+
+Pour la CI au push sur github :
+- pour phpunit, dans le fichier phpunit.xml.dist
+- pour codeception, dans les fichiers `.env` et `github-codeception-config.yaml` (nom arbitraire).
+
+Cette dernière configuration est requise pour jouer la diversité des tests disponibles.
+
+Pour être complet, les tests lancés par codeception récupèrent les variables d'environnement dans le fichier
+`codeception.yaml`, tandis que les tests qui lancent les commandes avec 
+```$I->runShellCommand('php bin/console app:data:scraper');````
+vont les chercher dans le fichier `.env`.
+
+Quant à celles lancées depuis la CI et qui ne disposent que des fichiers poussés,
+les variables doivent être déclarées dans ces derniers.
