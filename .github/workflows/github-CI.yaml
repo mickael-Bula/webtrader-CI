@@ -14,7 +14,7 @@ jobs:
             - uses: php-actions/composer@v6
             - run: echo "Composer dependencies have been installed"
               # spécifie le fichier de configuration phpunit.xml à utiliser avec l'option -c (--configuration)
-            - name: Run PHPUnit tests
+            - run: echo "Run PHPUnit tests"
             - run: vendor/bin/phpunit
-            - name: Run Codeception tests
+            - run: echo "Run Codeception tests"
             - run: vendor/bin/codecept run
