@@ -134,3 +134,7 @@ Avec ces modifications, le test passe.
 ```bash
 $ php vendor\bin\codecept run Unit
 ```
+
+## Création d'une chaîne CI avec GithubAction
+
+TODO : https://dev.to/icolomina/using-github-actions-to-execute-your-php-tests-after-every-push-2lpp
