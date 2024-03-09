@@ -1,3 +1,5 @@
+# La configuration github actions suivante est suffisante pour déclencher les tests à chaque push ou demande de fusion
+
 name: CI
 
 on: [ push, pull-request ]
