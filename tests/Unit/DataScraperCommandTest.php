@@ -69,7 +69,7 @@ class DataScraperCommandTest extends TestCase
 
         // Configure le double pour qu'il lance une exception lors de l'appel à getData()
         $dataScraperMock->method('getData')
-            ->willThrowException(new \Exception('Erreur de récupération des données'));
+            ->willThrowException(new \Exception('Erreur lors de la récupération des données'));
 
         // Crée une instance de la commande DataScraperCommand
         $application = new Application();
@@ -89,7 +89,7 @@ class DataScraperCommandTest extends TestCase
         $output = $commandTester->getDisplay();
 
         // Vérifie que la sortie contient le message d'erreur
-        $this->assertStringContainsString('Erreur de récupération des données', $output);
+        $this->assertStringContainsString('Erreur lors de la récupération des données', $output);
     }
 
     public function testErrorMessageIsDisplayedWhenGetDataResponseIsNotAnArrayOrArrayIsEmpty(): void
