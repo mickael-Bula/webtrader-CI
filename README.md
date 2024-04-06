@@ -140,7 +140,10 @@ $ php vendor\bin\codecept run Unit
 Pour configurer la CI, il est possible de se référer à la source suivante sur 
 [dev.to](https://dev.to/icolomina/using-github-actions-to-execute-your-php-tests-after-every-push-2lpp).
 
-Cependant, pour que les tests phpunit et codeception s'exécutent dans tous les environnements,
+Pour l'essentiel, il s'agit de créer un fichier `.github/workflows/github-CI.yaml` déclarant la configuration.
+Pour cette CI, j'ai opté pour un lancement de l'ensemble des tests lors d'un `push` ou d'une `pull request`.
+
+Cependant, pour que les tests phpunit et les tests codeception s'exécutent dans tous les environnements,
 il faut déclarer les variables dans plusieurs fichiers.
 
 Pour l'environnement de test local :
@@ -155,7 +158,7 @@ Cette dernière configuration est requise pour jouer la diversité des tests dis
 
 Pour être complet, les tests lancés par codeception récupèrent les variables d'environnement dans le fichier
 `codeception.yaml`, tandis que les tests qui lancent les commandes avec 
-```$I->runShellCommand('php bin/console app:data:scraper');````
+`$I->runShellCommand('php bin/console app:data:scraper');`
 vont les chercher dans le fichier `.env`.
 
 Quant à celles lancées depuis la CI et qui ne disposent que des fichiers poussés,

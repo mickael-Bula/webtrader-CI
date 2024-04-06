@@ -51,8 +51,12 @@ class DataScraperCommand extends Command
         }
 
         // Les données utiles sont disponibles
+        $data = $this->dataScraper->getFilteredData($cacData);
 
         //TODO : il faut que la classe DataScraper retourne un tableau avec les seules données utiles structurées
+        // ajouter des tests unitaires avec des dataProvider pour les méthodes getData, parseData, shrinkData, dataChunk
+        // ajout d'une connexion BDD
+        // insertion en base des données issues du scraping
 
         $io->success('Les données ont été importées avec succès.');
 

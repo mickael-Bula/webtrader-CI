@@ -59,7 +59,8 @@ class DataScraper
             $crawler = $this->getCrawler($url);
 
             return $this->parseData($crawler);
-        } catch (ClientExceptionInterface|TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
+        } catch (
+            ClientExceptionInterface|TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
             throw new \RuntimeException(
                 sprintf('Erreur lors de la création du crawler : %s', $e->getMessage()),
                 1,
@@ -82,8 +83,16 @@ class DataScraper
         // Filtre les résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower)
         $shrinkData = $this->shrinkData($splitData);
 
-        // on trie $shrinkData en vérifiant que le premier indice est une date au format jj/mm/aaaa
-        return array_filter($shrinkData, static fn($row) => preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0]));
+        // On trie $shrinkData en vérifiant que le premier indice est une date au format jj/mm/aaaa
+        $data = array_filter($shrinkData, static fn($row) => preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0]));
+
+        // Si le marché est ouvert, je supprime la valeur du jour courant du tableau de résultats
+        if ($this->isOpened()) {
+            $data = $this->deleteFirstIndex($data);
+        }
+
+        // Retourne le tableau contenant les seules données pertinentes
+        return $this->getFilteredData($data);
     }
 
     /**
@@ -98,20 +107,51 @@ class DataScraper
 
     /**
      * La fonction array_chunk() divise le tableau passé en paramètre avec une taille fixée par le second
-     * @param $data
+     * @param array $data
      * @return array
      */
-    public function dataChunk($data): array
+    public function dataChunk(array $data): array
     {
         return array_chunk($data, 7);
     }
 
     /**
      * Réduit chacune des lignes d'un tableau à ses 5 premiers indices
-     * @param $data
+     * @param array $data
      * @return array
      */
-    public function shrinkData($data): array
+    public function shrinkData(array $data): array
+    {
+        return array_map(static fn($chunk) => array_slice($chunk, 0, 5), $data);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isOpened(): bool
+    {
+        return (in_array(date('w'), range(1, 5), true)) && date('G') >= '18';
+    }
+
+    /**
+     * Supprime le premier indice du tableau
+     * @param array $data
+     * @return array
+     */
+    public function deleteFirstIndex(array $data): array
+    {
+        // Si je retournais directement le tableau, seul l'élément supprimé serait récupéré
+        array_splice($data, 0, 1);
+
+        return $data;
+    }
+
+    /**
+     * Filtre le tableau de résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower)
+     * @param array $data
+     * @return array
+     */
+    public function getFilteredData(array $data): array
     {
         return array_map(static fn($chunk) => array_slice($chunk, 0, 5), $data);
     }
