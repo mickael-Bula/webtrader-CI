@@ -17,6 +17,9 @@ class DataScraper
 
     public function __construct(HttpClientInterface $client)
     {
+        // Déclare le fuseau horaire pour une vérification correcte de l'heure courante
+        date_default_timezone_set('Europe/Paris');
+
         $this->client = $client;
     }
 
@@ -130,7 +133,7 @@ class DataScraper
      */
     public function isOpened(): bool
     {
-        return (in_array(date('w'), range(1, 5), true)) && date('G') >= '18';
+        return (in_array((int)date('w'), range(1, 5), true)) && date('G') <= '18';
     }
 
     /**
