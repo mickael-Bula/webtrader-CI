@@ -2,12 +2,17 @@
 
 namespace App\Command;
 
+use JsonException;
 use App\Service\DataScraper;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 
 #[AsCommand(
     name: 'app:data:scraper',
@@ -28,6 +33,11 @@ class DataScraperCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws JsonException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -55,7 +65,11 @@ class DataScraperCommand extends Command
         $fetchedCacData = $this->dataScraper->getFilteredData($cacData);
         $fetchedLvcData = $this->dataScraper->getFilteredData($lvcData);
 
-        $io->success('Les données ont été importées avec succès.');
+        $response = $this->dataScraper->sendData($fetchedCacData, 'cac');
+        $response['success'] ? $io->success($response['content']) : $io->error($response['content']);
+
+        $response = $this->dataScraper->sendData($fetchedLvcData, 'lvc');
+        $response['success'] ? $io->success($response['content']) : $io->error($response['content']);
 
         return Command::SUCCESS;
     }

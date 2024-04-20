@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use JsonException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -157,5 +158,91 @@ class DataScraper
     public function getFilteredData(array $data): array
     {
         return array_map(static fn($chunk) => array_slice($chunk, 0, 5), $data);
+    }
+
+    /**
+     * @param array $array
+     * @param string $stock
+     * @return array
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws JsonException
+     */
+    public function sendData(array $array, string $stock): array
+    {
+        $json = $this->serializeData($array, $stock);
+        $response = $this->client->request(
+            'POST',
+            "{$_ENV['API']}/stocks/{$stock}",
+            [
+                'json' => $json,
+                'headers' => ['Content-Type' => 'application/json']
+            ],
+        );
+
+        if ($response->getStatusCode() === 201) {
+            return [
+                "success" => true,
+                "content" => "Données envoyées avec succès à l'API" . PHP_EOL
+            ];
+        }
+
+        return [
+            "success" => false,
+            "content" => "Erreur lors de l'envoi des données à l'API : " . $response->getContent() . PHP_EOL
+        ];
+    }
+
+    /**
+     * @param array $array
+     * @param string $stock
+     * @return string
+     * @throws JsonException
+     */
+    public function serializeData(array $array, string $stock): string
+    {
+        // Construction du tableau associatif
+        $data = [];
+        $keys = ['createdAt', 'closing', 'opening', 'higher', 'lower'];
+        foreach ($array as $row) {
+            $data[] = array_combine($keys, $row);
+        }
+
+        $data = $this->convertStringToFloat($data, $stock);
+
+        return json_encode($data, JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param array $data
+     * @param string $stock
+     * @return array
+     */
+    public function convertStringToFloat(array $data, string $stock): array
+    {
+        if ($stock ==='cac') {
+            return array_map(static function ($item) {
+                return [
+                    'createdAt' => $item['createdAt'],
+                    'closing' => (float) str_replace(['.', ','], ['', '.'], $item['closing']),
+                    'opening' => (float) str_replace(['.', ','], ['', '.'], $item['opening']),
+                    'higher' => (float) str_replace(['.', ','], ['', '.'], $item['higher']),
+                    'lower' => (float) str_replace(['.', ','], ['', '.'], $item['lower']),
+                ];
+            }, $data);
+        }
+
+        return array_map(static function ($item) {
+            return [
+                'createdAt' => $item['createdAt'],
+                'closing' => (float) $item['closing'],
+                'opening' => (float) $item['opening'],
+                'higher' => (float) $item['higher'],
+                'lower' => (float) $item['lower'],
+            ];
+        }, $data);
+
     }
 }
