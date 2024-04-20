@@ -26,12 +26,12 @@ class DataScraperCest
      * @param UnitTester $I
      * @return void
      */
-    public function testISOPENEDMethodReturnsTrueOnWeekDaysIfHourIsAfterEighteen(UnitTester $I): void
+    public function testISOPENEDMethodReturnsTrueOnWeekDaysIfHourIsBeforeEighteen(UnitTester $I): void
     {
-        if (in_array(date('w'), range(1, 5), true) && date('G') >= 18) {
+        if (in_array((int)date('w'), range(1, 5), true) && date('G') <= 18) {
             $I->assertTrue($this->dataScraper->isOpened());
         } else {
-            $I->markTestSkipped("Le test ne peut être joué que s'il est au moins 18:00");
+            $I->markTestSkipped("Le test ne peut être joué qu'avant 18:00");
         }
     }
 
@@ -39,12 +39,14 @@ class DataScraperCest
      * @param UnitTester $I
      * @return void
      */
-    public function testISOPENEDMethodReturnsFalseOnWeekDaysIfHourIsBeforeEighteen(UnitTester $I): void
+    public function testISOPENEDMethodReturnsFalseOnWeekDaysIfHourIsAfterEighteen(UnitTester $I): void
     {
-        if (in_array(date('w'), range(1, 5), true) && date('G') < 18) {
-            $I->assertFalse($this->dataScraper->isOpened());
+        if (in_array((int)date('w'), range(1, 5), true) && date('G') > 18) {
+            $I->assertFalse($this->dataScraper->isOpened(), 'Le marché est fermé en semaine avant 18:00');
+        } else if (in_array((int)date('w'), [0, 6], true)) {
+            $I->assertFalse($this->dataScraper->isOpened(), 'Le marché est fermé les jours de week-end');
         } else {
-            $I->markTestSkipped("Le test ne peut être joué que s'il est moins de 18:00");
+            $I->markTestSkipped("Le test ne peut être joué que s'il est plus de 18:00 un jour de semaine");
         }
     }
 

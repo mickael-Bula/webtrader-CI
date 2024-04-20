@@ -36,6 +36,7 @@ class DataScraperCommand extends Command
         try {
             // Appel du service DataScraper pour récupérer les cotations du Cac
             $cacData = $this->dataScraper->getData($_ENV['CAC_DATA']);
+            $lvcData = $this->dataScraper->getData($_ENV['LVC_DATA']);
         } catch (\Exception $e) {
             // Si une exception est levée, afficher l'erreur et retourner un code d'échec
             $io->error('Erreur lors de la récupération des données : ' . $e->getMessage());
@@ -51,12 +52,8 @@ class DataScraperCommand extends Command
         }
 
         // Les données utiles sont disponibles
-        $data = $this->dataScraper->getFilteredData($cacData);
-
-        //TODO : il faut que la classe DataScraper retourne un tableau avec les seules données utiles structurées
-        // ajouter des tests unitaires avec des dataProvider pour les méthodes getData, parseData, shrinkData, dataChunk
-        // ajout d'une connexion BDD
-        // insertion en base des données issues du scraping
+        $fetchedCacData = $this->dataScraper->getFilteredData($cacData);
+        $fetchedLvcData = $this->dataScraper->getFilteredData($lvcData);
 
         $io->success('Les données ont été importées avec succès.');
 
