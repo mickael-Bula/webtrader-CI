@@ -163,17 +163,15 @@ class DataScraper
     /**
      * @param array $array
      * @param string $stock
-     * @return array
-     * @throws ClientExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
+     * @return ResponseInterface
      * @throws JsonException
+     * @throws TransportExceptionInterface
      */
-    public function sendData(array $array, string $stock): array
+    public function sendData(array $array, string $stock): ResponseInterface
     {
         $json = $this->serializeData($array, $stock);
-        $response = $this->client->request(
+
+        return $this->client->request(
             'POST',
             "{$_ENV['API']}/stocks/{$stock}",
             [
@@ -181,18 +179,6 @@ class DataScraper
                 'headers' => ['Content-Type' => 'application/json']
             ],
         );
-
-        if ($response->getStatusCode() === 201) {
-            return [
-                "success" => true,
-                "content" => "Données envoyées avec succès à l'API" . PHP_EOL
-            ];
-        }
-
-        return [
-            "success" => false,
-            "content" => "Erreur lors de l'envoi des données à l'API : " . $response->getContent() . PHP_EOL
-        ];
     }
 
     /**
@@ -243,6 +229,5 @@ class DataScraper
                 'lower' => (float) $item['lower'],
             ];
         }, $data);
-
     }
 }

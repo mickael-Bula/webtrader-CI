@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 
@@ -38,38 +39,43 @@ class DataScraperCommand extends Command
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      * @throws JsonException
+     * @throws DecodingExceptionInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
 
-        try {
-            // Appel du service DataScraper pour récupérer les cotations du Cac
-            $cacData = $this->dataScraper->getData($_ENV['CAC_DATA']);
-            $lvcData = $this->dataScraper->getData($_ENV['LVC_DATA']);
-        } catch (\Exception $e) {
-            // Si une exception est levée, afficher l'erreur et retourner un code d'échec
-            $io->error('Erreur lors de la récupération des données : ' . $e->getMessage());
+        $stocks = ['cac' => $_ENV['CAC_DATA'], 'lvc' => $_ENV['LVC_DATA']];
 
-            return Command::FAILURE;
+        foreach ($stocks as $stock => $value) {
+            try {
+                // Appel du service DataScraper pour récupérer les cotations
+                $stockData = $this->dataScraper->getData($value);
+            } catch (\Exception $e) {
+                // Si une exception est levée, afficher l'erreur et retourner un code d'échec
+                $io->error("Erreur lors de la récupération des données {$stock} : " . $e->getMessage());
+
+                return Command::FAILURE;
+            }
+
+            // Si le résultat est un tableau vide, c'est qu'aucune donnée n'a été récupérée
+            if (!is_array($stockData) || count($stockData) === 0) {
+                $io->error("Aucune données {$stock} récupérées depuis le site");
+
+                return Command::FAILURE;
+            }
+
+            // Envoi des données à l'API pour enregistrement en base
+            $responseCode = $this->dataScraper->sendData($stockData, $stock);
+
+            if ($responseCode->getStatusCode() === 201) {
+                $io->success("Données {$stock} envoyées avec succès à l'API" . PHP_EOL);
+            } else {
+                $content = $responseCode->toArray();
+                $errorMessage = $content['error'] ?? "(PAS DE MESSAGE D'ERREUR)";
+                $io->error("Erreur lors de l'envoi des données {$stock} à l'API : " . $errorMessage);
+            }
         }
-
-        // Si le résultat est un tableau vide, c'est qu'aucune donnée n'a été récupérée
-        if (!is_array($cacData) || count($cacData) === 0) {
-            $io->error('Aucune données récupérées depuis le site');
-
-            return Command::FAILURE;
-        }
-
-        // Les données utiles sont disponibles
-        $fetchedCacData = $this->dataScraper->getFilteredData($cacData);
-        $fetchedLvcData = $this->dataScraper->getFilteredData($lvcData);
-
-        $response = $this->dataScraper->sendData($fetchedCacData, 'cac');
-        $response['success'] ? $io->success($response['content']) : $io->error($response['content']);
-
-        $response = $this->dataScraper->sendData($fetchedLvcData, 'lvc');
-        $response['success'] ? $io->success($response['content']) : $io->error($response['content']);
 
         return Command::SUCCESS;
     }
