@@ -19,7 +19,11 @@ class DataScraperCest
     {
         // Crée un double de httpClientInterface pour l'injecter dans dataScraper
         $httpClientMock = Stub::makeEmpty(HttpClientInterface::class);
-        $this->dataScraper = new DataScraper($httpClientMock);
+
+        // Crée un double de DataScraper avec une dépendance doublée et une méthode dont on force le retour
+        $this->dataScraper = Stub::construct(
+            DataScraper::class, ['client' => $httpClientMock], ['setToken' => 'token']
+        );
     }
 
     /**

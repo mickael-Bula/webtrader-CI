@@ -48,7 +48,8 @@ class DataScraperCommandCest
     public function testDataScraperCommandDisplaysASuccessMessage(FunctionalTester $I): void
     {
         $I->runShellCommand('php bin/console app:data:scraper');
-        $I->seeShellOutputMatches('/Les données ont été importées avec succès./');
+        $I->seeShellOutputMatches('/.*Données cac envoyées avec succès à l\'API.*/');
+        $I->seeShellOutputMatches('/.*Données lvc envoyées avec succès à l\'API.*/');
     }
 
     /**

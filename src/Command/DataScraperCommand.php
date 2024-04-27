@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use Exception;
 use JsonException;
 use App\Service\DataScraper;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -51,16 +52,16 @@ class DataScraperCommand extends Command
             try {
                 // Appel du service DataScraper pour récupérer les cotations
                 $stockData = $this->dataScraper->getData($value);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Si une exception est levée, afficher l'erreur et retourner un code d'échec
-                $io->error("Erreur lors de la récupération des données {$stock} : " . $e->getMessage());
+                $io->error("Erreur lors de la récupération des données $stock : " . $e->getMessage());
 
                 return Command::FAILURE;
             }
 
             // Si le résultat est un tableau vide, c'est qu'aucune donnée n'a été récupérée
             if (!is_array($stockData) || count($stockData) === 0) {
-                $io->error("Aucune données {$stock} récupérées depuis le site");
+                $io->error("Aucune donnée $stock récupérée depuis le site");
 
                 return Command::FAILURE;
             }
@@ -69,11 +70,11 @@ class DataScraperCommand extends Command
             $responseCode = $this->dataScraper->sendData($stockData, $stock);
 
             if ($responseCode->getStatusCode() === 201) {
-                $io->success("Données {$stock} envoyées avec succès à l'API" . PHP_EOL);
+                $io->success("Données $stock envoyées avec succès à l'API" . PHP_EOL);
             } else {
                 $content = $responseCode->toArray();
                 $errorMessage = $content['error'] ?? "(PAS DE MESSAGE D'ERREUR)";
-                $io->error("Erreur lors de l'envoi des données {$stock} à l'API : " . $errorMessage);
+                $io->error("Erreur lors de l'envoi des données $stock à l'API : " . $errorMessage);
             }
         }
 

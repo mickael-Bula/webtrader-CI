@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use JsonException;
+use RuntimeException;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -15,13 +16,24 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 class DataScraper
 {
     private HttpClientInterface $client;
+    private mixed $token;
 
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws JsonException
+     */
     public function __construct(HttpClientInterface $client)
     {
         // Déclare le fuseau horaire pour une vérification correcte de l'heure courante
         date_default_timezone_set('Europe/Paris');
 
         $this->client = $client;
+
+        // Récupère le token d'authentification auprès de l'API
+        $this->token = $this->setToken();
     }
 
     /**
@@ -65,7 +77,7 @@ class DataScraper
             return $this->parseData($crawler);
         } catch (
             ClientExceptionInterface|TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf('Erreur lors de la création du crawler : %s', $e->getMessage()),
                 1,
                 $e
@@ -87,7 +99,7 @@ class DataScraper
         // Filtre les résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower)
         $shrinkData = $this->shrinkData($splitData);
 
-        // On trie $shrinkData en vérifiant que le premier indice est une date au format jj/mm/aaaa
+        // On trie $shrinkData en vérifiant que le premier indice est une date au format dd/mm/yyyy
         $data = array_filter($shrinkData, static fn($row) => preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0]));
 
         // Si le marché est ouvert, je supprime la valeur du jour courant du tableau de résultats
@@ -164,7 +176,10 @@ class DataScraper
      * @param array $array
      * @param string $stock
      * @return ResponseInterface
+     * @throws ClientExceptionInterface
      * @throws JsonException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
     public function sendData(array $array, string $stock): ResponseInterface
@@ -173,11 +188,11 @@ class DataScraper
 
         return $this->client->request(
             'POST',
-            "{$_ENV['API']}/stocks/{$stock}",
+            "{$_ENV['API']}/api/stocks/$stock",
             [
-                'json' => $json,
-                'headers' => ['Content-Type' => 'application/json']
-            ],
+                'headers' => ['Authorization' => "Bearer $this->token"],
+                'json' => $json
+            ]
         );
     }
 
@@ -229,5 +244,45 @@ class DataScraper
                 'lower' => (float) $item['lower'],
             ];
         }, $data);
+    }
+
+    /**
+     * @return mixed|null
+     * @throws ClientExceptionInterface
+     * @throws JsonException
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     */
+    public function setToken(): mixed
+    {
+        $user = $_ENV['USER'];
+        $password = $_ENV['PASSWORD'];
+
+        $credentials = ["username" => $user, "password" => $password];
+
+        // Récupération du token
+        $tokenResponse = $this->client
+            ->request(
+                'POST',
+                "{$_ENV['API']}/api/login_check",
+                ['json' => $credentials]
+            );
+
+        // Récupération du contenu de la réponse
+        $content = $tokenResponse->getContent();
+
+        // Traitement du contenu JSON
+        $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+
+        return $data['token'] ?? null;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getToken(): mixed
+    {
+        return $this->token;
     }
 }
