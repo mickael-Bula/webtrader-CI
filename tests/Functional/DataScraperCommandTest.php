@@ -19,7 +19,7 @@ class DataScraperCommandTest extends KernelTestCase
     }
 
     /**
-     * @functional-local
+     * @group functional-local
      * @return void
      */
     public function testCommandIsSuccessful(): void

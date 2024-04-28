@@ -172,7 +172,7 @@ En outre, l'URL de connexion doit être spécifiée en dur dans le fichier `.env
 Pour signifier à github-CI de ne pas exécuter ces tests, il est possible d'utiliser le filtre `--exclude-group`.
 Voici la manière de procéder :
 
-1 - annoter les tests à exclure, par exemple @functional-local (la chaîne est libre, mais doit commencer par @)
+1 - annoter les tests à exclure, par exemple @group functional-local (la chaîne est libre)
 
 2 - dans le fichier github-CI.yaml, ajouter le filtre comme ceci : 
 
