@@ -24,5 +24,4 @@ suites:
         modules:
             enabled:
                 - Asserts
-                - App\Tests\Support\Helper\UnitTester:
-                      path: tests/Support/Helper
+                - App\Tests\Support\UnitTester
