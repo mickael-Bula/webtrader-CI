@@ -1,5 +1,5 @@
 namespace: App\Tests
-support_namespace: Support
+support_namespace: App\Tests\Support
 paths:
     tests: tests
     output: tests/_output
@@ -23,4 +23,6 @@ suites:
         actor: UnitTester
         modules:
             enabled:
-                - \Helper\Unit
+                - Asserts
+                - App\Tests\Support\Helper\UnitTester:
+                      path: tests/Support/Helper
