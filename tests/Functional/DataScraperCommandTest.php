@@ -18,6 +18,10 @@ class DataScraperCommandTest extends KernelTestCase
         return Kernel::class;
     }
 
+    /**
+     * @group functional-local
+     * @return void
+     */
     public function testCommandIsSuccessful(): void
     {
         // Démarre le kernel

@@ -43,14 +43,16 @@ dump-env:
 # Help 🆘
 help:
 	@echo "Liste des commandes disponibles :"
-	@echo "  install          - Installe les dépendances du projet"
-	@echo "  update           - Mise à jour des dépendances du projet"
-	@echo "  serve            - Lance le serveur de développement de Symfony"
-	@echo "  stop             - Arrête le serveur de développement de Symfony"
-	@echo "  start            - Lance le serveur de développement de Symfony et ouvre le projet dans le navigateur"
-	@echo "  test             - Lance les tests PhpUnit"
-	@echo "  migrate          - Lance les migrations de la base de données"
-	@echo "  clean            - Nettoie le cache et les fichiers de logs"
+	@echo "  install          	- Installe les dépendances du projet"
+	@echo "  update           	- Mise a jour des dependances du projet"
+	@echo "  serve            	- Lance le serveur de developpement de Symfony"
+	@echo "  stop             	- Arrete le serveur de developpement de Symfony"
+	@echo "  start            	- Lance le serveur de developpement de Symfony et ouvre le projet dans le navigateur"
+	@echo "  test             	- Lance les tests PhpUnit"
+	@echo "  migrate          	- Lance les migrations de la base de donnees"
+	@echo "  clean             	- Nettoie le cache et les fichiers de logs"
+	@echo "  first-install-tdd	- Installe un nouveau projet avec les dependances permettant de faire du TDD"
+	@echo "  test-all          	- Lance tous les tests disponibles"
 
 first-install-tdd:
 	composer require symfony/orm-pack security ; \
@@ -66,3 +68,5 @@ first-install-tdd:
     cp .env .env.local ; \
     cp .env .env.test.local ;
 
+test-all:
+	php vendor\bin\codecept run

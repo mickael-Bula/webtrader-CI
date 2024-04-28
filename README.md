@@ -140,7 +140,10 @@ $ php vendor\bin\codecept run Unit
 Pour configurer la CI, il est possible de se référer à la source suivante sur 
 [dev.to](https://dev.to/icolomina/using-github-actions-to-execute-your-php-tests-after-every-push-2lpp).
 
-Cependant, pour que les tests phpunit et codeception s'exécutent dans tous les environnements,
+Pour l'essentiel, il s'agit de créer un fichier `.github/workflows/github-CI.yaml` déclarant la configuration.
+Pour cette CI, j'ai opté pour un lancement de l'ensemble des tests lors d'un `push` ou d'une `pull request`.
+
+Cependant, pour que les tests phpunit et les tests codeception s'exécutent dans tous les environnements,
 il faut déclarer les variables dans plusieurs fichiers.
 
 Pour l'environnement de test local :
@@ -155,8 +158,24 @@ Cette dernière configuration est requise pour jouer la diversité des tests dis
 
 Pour être complet, les tests lancés par codeception récupèrent les variables d'environnement dans le fichier
 `codeception.yaml`, tandis que les tests qui lancent les commandes avec 
-```$I->runShellCommand('php bin/console app:data:scraper');````
+`$I->runShellCommand('php bin/console app:data:scraper');`
 vont les chercher dans le fichier `.env`.
 
 Quant à celles lancées depuis la CI et qui ne disposent que des fichiers poussés,
 les variables doivent être déclarées dans ces derniers.
+
+### Exclure des tests de la CI
+
+Certains de mes tests fonctionnels nécessitent une connexion à mon API et ne sont donc pas testables en l'état.
+En outre, l'URL de connexion doit être spécifiée en dur dans le fichier `.env.test`.
+
+Pour signifier à github-CI de ne pas exécuter ces tests, il est possible d'utiliser le filtre `--exclude-group`.
+Voici la manière de procéder :
+
+1 - annoter les tests à exclure, par exemple @group functional-local (la chaîne est libre)
+
+2 - dans le fichier github-CI.yaml, ajouter le filtre comme ceci : 
+
+    ```yaml
+    run: vendor/bin/phpunit --exclude-group functional-local
+    ```

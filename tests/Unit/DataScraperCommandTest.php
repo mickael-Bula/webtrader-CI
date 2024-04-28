@@ -25,11 +25,12 @@ class DataScraperCommandTest extends TestCase
 
         // Je crée un double de la classe DataScraper pour que la méthode getData retourne un tableau vide
         $dataScraperMock = $this->getMockBuilder(DataScraper::class)
-            ->onlyMethods(['getData'])
+            ->onlyMethods(['getData', 'setToken'])
             ->setConstructorArgs([$httpClientMock]) // Passe le mock au constructeur
             ->getMock();
 
         $dataScraperMock->method('getData')->willReturn([]);
+        $dataScraperMock->method('getData')->willReturn('token');
 
         // Je crée une instance de la commande DataScraperCommand
         $application = new Application();
@@ -49,7 +50,7 @@ class DataScraperCommandTest extends TestCase
         $this->assertEquals(1, $statusCode);
 
         // Vérifie la sortie en console
-        $this->assertStringContainsString('Aucune données récupérées depuis le site', $output);
+        $this->assertStringContainsString('Aucune donnée cac récupérée depuis le site', $output);
     }
 
     /**
@@ -63,9 +64,11 @@ class DataScraperCommandTest extends TestCase
 
         // Crée un double de la classe DataScraper pour forcer une exception lors de l'appel à getData()
         $dataScraperMock = $this->getMockBuilder(DataScraper::class)
-            ->onlyMethods(['getData'])
+            ->onlyMethods(['getData', 'setToken'])
             ->setConstructorArgs([$httpClientMock])
             ->getMock();
+
+        $dataScraperMock->method('setToken')->willReturn('token');
 
         // Configure le double pour qu'il lance une exception lors de l'appel à getData()
         $dataScraperMock->method('getData')
@@ -100,11 +103,12 @@ class DataScraperCommandTest extends TestCase
 
         // Crée un double de la classe DataScraper pour que la méthode getData() ne retourne pas un tableau
         $dataScraperMock = $this->getMockBuilder(DataScraper::class)
-            ->onlyMethods(['getData'])
+            ->onlyMethods(['getData', 'setToken'])
             ->setConstructorArgs([$httpClientMock])
             ->getMock();
 
         $dataScraperMock->method('getData')->willReturn('something');
+        $dataScraperMock->method('setToken')->willReturn('token');
 
         // Je crée une instance de la commande DataScraperCommand
         $application = new Application();
@@ -124,6 +128,6 @@ class DataScraperCommandTest extends TestCase
         $this->assertEquals(1, $statusCode);
 
         // Vérifie la sortie en console
-        $this->assertStringContainsString('Aucune données récupérées depuis le site', $output);
+        $this->assertStringContainsString('Aucune donnée cac récupérée depuis le site', $output);
     }
 }

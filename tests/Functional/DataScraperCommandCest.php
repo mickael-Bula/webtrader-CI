@@ -48,7 +48,8 @@ class DataScraperCommandCest
     public function testDataScraperCommandDisplaysASuccessMessage(FunctionalTester $I): void
     {
         $I->runShellCommand('php bin/console app:data:scraper');
-        $I->seeShellOutputMatches('/Les données ont été importées avec succès./');
+        $I->seeShellOutputMatches('/.*Données cac envoyées avec succès à l\'API.*/');
+        $I->seeShellOutputMatches('/.*Données lvc envoyées avec succès à l\'API.*/');
     }
 
     /**
@@ -229,7 +230,7 @@ class DataScraperCommandCest
      */
     public function testFirstIndexOfParseDataResultIsDateFormat(FunctionalTester $I): void
     {
-        // Exécute la méthode getData() du service avec l'URL en argument
+        // Exécute la méthode getCrawler() du service avec l'URL en argument
         $crawler = $this->dataScraper->getCrawler($_ENV['CAC_DATA']);
 
         // Exécute la méthode parseData avec le crawler en paramètre

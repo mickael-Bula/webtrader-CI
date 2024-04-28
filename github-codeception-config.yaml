@@ -1,5 +1,5 @@
 namespace: App\Tests
-support_namespace: Support
+support_namespace: App\Tests\Support
 paths:
     tests: tests
     output: tests/_output
@@ -16,3 +16,12 @@ settings:
     shuffle: true
     colors: true
     report_useless_tests: true
+
+suites:
+    unit:
+        path: tests/Unit
+        actor: UnitTester
+        modules:
+            enabled:
+                - Asserts
+                # - App\Tests\Support\UnitTester
