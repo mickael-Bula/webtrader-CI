@@ -16,3 +16,11 @@ settings:
     shuffle: true
     colors: true
     report_useless_tests: true
+
+suites:
+    unit:
+        path: tests/Unit
+        actor: UnitTester
+        modules:
+            enabled:
+                - \Helper\Unit
