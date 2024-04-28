@@ -163,3 +163,19 @@ vont les chercher dans le fichier `.env`.
 
 Quant à celles lancées depuis la CI et qui ne disposent que des fichiers poussés,
 les variables doivent être déclarées dans ces derniers.
+
+### Exclure des tests de la CI
+
+Certains de mes tests fonctionnels nécessitent une connexion à mon API et ne sont donc pas testables en l'état.
+En outre, l'URL de connexion doit être spécifiée en dur dans le fichier `.env.test`.
+
+Pour signifier à github-CI de ne pas exécuter ces tests, il est possible d'utiliser le filtre `--exclude-group`.
+Voici la manière de procéder :
+
+1 - annoter les tests à exclure, par exemple @functional-local (la chaîne est libre, mais doit commencer par @)
+
+2 - dans le fichier github-CI.yaml, ajouter le filtre comme ceci : 
+
+    ```yaml
+    run: vendor/bin/phpunit --exclude-group functional-local
+    ```
