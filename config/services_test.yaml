@@ -1,11 +1,12 @@
 # Déclaration du service comme `public` pour que codeception puisse y accéder
-# Cette déclaration est nécessaire lorsque le code n'est pas appelé dans le code
-# En effet, Symfony supprime tous les services non utilisés lors de la compilation du container de services.
+# Cette déclaration est nécessaire lorsque le service n'est pas explicitement appelé dans le code.
+# En effet, Symfony supprime tous les services non utilisés lors de la compilation du conteneur de services.
 # Dans le cas contraire, le service tombe sous la déclaration globale des services dans `config/services.yaml`
 services:
     App\Service\DataScraper:
         public: true
         arguments:
             # injecte la dépendance HttpClientInterface dans le constructeur de DataScraper lors des tests
-            # (cette déclaration est nécessaire car, lors des tests, un container de services spécifique est utilisé)
-          [ '@Symfony\Contracts\HttpClient\HttpClientInterface' ]
+            # (cette déclaration est nécessaire car, lors des tests, un conteneur de services spécifique est utilisé)
+            - '@Symfony\Contracts\HttpClient\HttpClientInterface'
+            - '@Psr\Log\LoggerInterface'

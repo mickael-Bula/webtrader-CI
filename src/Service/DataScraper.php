@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Service;
 
 use JsonException;
 use RuntimeException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -12,10 +13,10 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 
-
 class DataScraper
 {
     private HttpClientInterface $client;
+    private LoggerInterface $logger;
     private mixed $token;
 
     /**
@@ -25,12 +26,13 @@ class DataScraper
      * @throws ClientExceptionInterface
      * @throws JsonException
      */
-    public function __construct(HttpClientInterface $client)
+    public function __construct(HttpClientInterface $client, LoggerInterface $logger)
     {
         // Déclare le fuseau horaire pour une vérification correcte de l'heure courante
         date_default_timezone_set('Europe/Paris');
 
         $this->client = $client;
+        $this->logger = $logger;
 
         // Récupère le token d'authentification auprès de l'API
         $this->token = $this->setToken();
@@ -77,8 +79,10 @@ class DataScraper
             return $this->parseData($crawler);
         } catch (
             ClientExceptionInterface|TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
+            $errorMessage = sprintf("Erreur lors de la création du crawler : %s", $e->getMessage());
+            $this->logger->error($errorMessage);
             throw new RuntimeException(
-                sprintf('Erreur lors de la création du crawler : %s', $e->getMessage()),
+                $errorMessage,
                 1,
                 $e
             );
