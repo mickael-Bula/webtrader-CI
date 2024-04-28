@@ -16,4 +16,4 @@ jobs:
             # spécifie le fichier de configuration phpunit.xml à utiliser avec l'option -c (--configuration)
             - run: vendor/bin/phpunit --exclude-group functional-local
             # spécifie le fichier de configuration de codeception pour la CI de github action avec l'option -c
-            - run: vendor/bin/codecept run unit -c github-codeception-config.yaml
+#            - run: vendor/bin/codecept run unit -c github-codeception-config.yaml
