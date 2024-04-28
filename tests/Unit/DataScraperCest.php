@@ -15,7 +15,7 @@ class DataScraperCest
     /**
      * @throws Exception
      */
-    public function _before(UnitTester $I): void
+    public function _before(): void
     {
         // Crée un double de httpClientInterface pour l'injecter dans dataScraper
         $httpClientMock = Stub::makeEmpty(HttpClientInterface::class);
