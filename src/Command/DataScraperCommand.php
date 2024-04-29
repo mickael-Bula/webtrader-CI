@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use DateTime;
 use Exception;
 use JsonException;
 use App\Service\DataScraper;
@@ -50,8 +51,8 @@ class DataScraperCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         // Affiche la date et l'heure de lancement du script dans le terminal et dans le fichier de log
-        $startTime = new \DateTime();
-        $message = sprintf("[%s] LANCEMENT DE LA RECUPERATION DES DONNEES BOURSIERES",
+        $startTime = new DateTime();
+        $message = sprintf("[%s] LANCEMENT DE LA RÉCUPÉRATION DES DONNÉES BOURSIÈRES",
                            $startTime->format('d-m-Y H:i:s')
         );
         $io->writeln($message);
@@ -60,8 +61,8 @@ class DataScraperCommand extends Command
         $stocks = ['cac' => $_ENV['CAC_DATA'], 'lvc' => $_ENV['LVC_DATA']];
 
         foreach ($stocks as $stock => $value) {
-            $iterationTime = (new \DateTime())->format('d-m-Y H:i:s');
-            $io->writeln(sprintf("[%s] SCRAPING DES DONNEES DU %s", $iterationTime, strtoupper($stock)));
+            $iterationTime = (new DateTime())->format('d-m-Y H:i:s');
+            $io->writeln(sprintf("[%s] SCRAPING DES DONNÉES DU %s", $iterationTime, strtoupper($stock)));
             try {
                 // Appel du service DataScraper pour récupérer les cotations
                 $stockData = $this->dataScraper->getData($value);
@@ -88,10 +89,10 @@ class DataScraperCommand extends Command
             $this->dataScraper->displayFinalMessage($io, $stock, $response);
         }
         // Affiche la date et l'heure de la fin du script dans le terminal et dans le fichier de log
-        $endTime = new \DateTime();
+        $endTime = new DateTime();
         $duration = $startTime->diff($endTime);
         $message = sprintf(
-            "[%s] FIN DE LA RECUPERATION DES DONNEES BOURSIERES | DUREE %s:%s",
+            "[%s] FIN DE LA RÉCUPÉRATION DES DONNÉES BOURSIÈRES | DURÉE %02dm:%02ds",
             $endTime->format('d-m-Y H:i:s'), $duration->i, $duration->s
         );
         $io->writeln($message);
