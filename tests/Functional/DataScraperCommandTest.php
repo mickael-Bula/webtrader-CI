@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
 use App\Kernel;
 use App\Service\DataScraper;
+use Psr\Log\LoggerInterface;
 use App\Command\DataScraperCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -33,10 +34,13 @@ class DataScraperCommandTest extends KernelTestCase
         // Récupère le service DataScraper depuis le conteneur de services
         $dataScraper = $container->get(DataScraper::class);
 
+        // Récupère le logger
+        $logger = $container->get(LoggerInterface::class);
+
         $application = new Application();
 
         // Ajoute la commande avec la dépendance injectée (raison pour laquelle le conteneur de service est requis)
-        $application->add(new DataScraperCommand($dataScraper));
+        $application->add(new DataScraperCommand($dataScraper, $logger));
 
         $command = $application->find('app:data:scraper');
         $commandTester = new CommandTester($command);

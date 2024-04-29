@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Tests\Unit;
 
+use Exception;
 use App\Service\DataScraper;
+use Psr\Log\LoggerInterface;
 use PHPUnit\Framework\TestCase;
 use App\Command\DataScraperCommand;
 use Symfony\Component\Console\Application;
@@ -23,10 +25,14 @@ class DataScraperCommandTest extends TestCase
         $httpClientMock = $this->getMockBuilder(HttpClientInterface::class)
             ->getMock();
 
+        // Crée un double du logger
+        $loggerMock = $this->getMockBuilder(LoggerInterface::class)
+        ->getMock();
+
         // Je crée un double de la classe DataScraper pour que la méthode getData retourne un tableau vide
         $dataScraperMock = $this->getMockBuilder(DataScraper::class)
             ->onlyMethods(['getData', 'setToken'])
-            ->setConstructorArgs([$httpClientMock]) // Passe le mock au constructeur
+            ->setConstructorArgs([$httpClientMock, $loggerMock]) // Injection des mocks dans le constructeur
             ->getMock();
 
         $dataScraperMock->method('getData')->willReturn([]);
@@ -34,7 +40,7 @@ class DataScraperCommandTest extends TestCase
 
         // Je crée une instance de la commande DataScraperCommand
         $application = new Application();
-        $application->add(new DataScraperCommand($dataScraperMock));
+        $application->add(new DataScraperCommand($dataScraperMock, $loggerMock));
 
         // Je crée un testeur de commande
         $command = $application->find('app:data:scraper');
@@ -62,21 +68,25 @@ class DataScraperCommandTest extends TestCase
         $httpClientMock = $this->getMockBuilder(HttpClientInterface::class)
             ->getMock();
 
+        // Crée un double du logger
+        $loggerMock = $this->getMockBuilder(LoggerInterface::class)
+            ->getMock();
+
         // Crée un double de la classe DataScraper pour forcer une exception lors de l'appel à getData()
         $dataScraperMock = $this->getMockBuilder(DataScraper::class)
             ->onlyMethods(['getData', 'setToken'])
-            ->setConstructorArgs([$httpClientMock])
+            ->setConstructorArgs([$httpClientMock, $loggerMock])
             ->getMock();
 
         $dataScraperMock->method('setToken')->willReturn('token');
 
         // Configure le double pour qu'il lance une exception lors de l'appel à getData()
         $dataScraperMock->method('getData')
-            ->willThrowException(new \Exception('Erreur lors de la récupération des données'));
+            ->willThrowException(new Exception('Erreur lors de la récupération des données'));
 
         // Crée une instance de la commande DataScraperCommand
         $application = new Application();
-        $application->add(new DataScraperCommand($dataScraperMock));
+        $application->add(new DataScraperCommand($dataScraperMock, $loggerMock));
 
         // Crée un testeur de commande
         $command = $application->find('app:data:scraper');
@@ -101,10 +111,14 @@ class DataScraperCommandTest extends TestCase
         $httpClientMock = $this->getMockBuilder(HttpClientInterface::class)
             ->getMock();
 
+        // Crée un double du logger
+        $loggerMock = $this->getMockBuilder(LoggerInterface::class)
+            ->getMock();
+
         // Crée un double de la classe DataScraper pour que la méthode getData() ne retourne pas un tableau
         $dataScraperMock = $this->getMockBuilder(DataScraper::class)
             ->onlyMethods(['getData', 'setToken'])
-            ->setConstructorArgs([$httpClientMock])
+            ->setConstructorArgs([$httpClientMock, $loggerMock])
             ->getMock();
 
         $dataScraperMock->method('getData')->willReturn('something');
@@ -112,7 +126,7 @@ class DataScraperCommandTest extends TestCase
 
         // Je crée une instance de la commande DataScraperCommand
         $application = new Application();
-        $application->add(new DataScraperCommand($dataScraperMock));
+        $application->add(new DataScraperCommand($dataScraperMock, $loggerMock));
 
         // Je crée un testeur de commande
         $command = $application->find('app:data:scraper');
