@@ -39,10 +39,10 @@ class DataScraperCommand extends Command
      * @param OutputInterface $output
      * @return int
      * @throws ClientExceptionInterface
+     * @throws JsonException
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @throws JsonException
      * @throws DecodingExceptionInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -82,18 +82,10 @@ class DataScraperCommand extends Command
             }
 
             // Envoi des données à l'API pour enregistrement en base
-            $responseCode = $this->dataScraper->sendData($stockData, $stock);
+            $response = $this->dataScraper->sendData($stockData, $stock);
 
-            if ($responseCode->getStatusCode() === 201) {
-                $successMessage = "Données $stock envoyées avec succès à l'API" . PHP_EOL;
-                $io->success($successMessage);
-                $this->logger->info($successMessage);
-            } else {
-                $content = $responseCode->toArray();
-                $errorMessage = $content['error'] ?? "(PAS DE MESSAGE D'ERREUR)";
-                $io->error("Erreur lors de l'envoi des données $stock à l'API : " . $errorMessage);
-                $this->logger->error("Erreur lors de l'envoi des données $stock à l'API : " . $errorMessage);
-            }
+            // Affiche le contenu de la réponse en fonction du code de retour
+            $this->dataScraper->displayFinalMessage($io, $stock, $response);
         }
         // Affiche la date et l'heure de la fin du script dans le terminal et dans le fichier de log
         $endTime = new \DateTime();

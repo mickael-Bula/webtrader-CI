@@ -6,10 +6,12 @@ use JsonException;
 use RuntimeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 
@@ -150,7 +152,7 @@ class DataScraper
      */
     public function isOpened(): bool
     {
-        return (in_array((int)date('w'), range(1, 5), true)) && date('G') <= '18';
+        return (int)date('w') >= 1 && (int)date('w') <= 5 && date('G') <= 18;
     }
 
     /**
@@ -288,5 +290,39 @@ class DataScraper
     public function getToken(): mixed
     {
         return $this->token;
+    }
+
+    /**
+     * @param SymfonyStyle $io
+     * @param string $stock
+     * @param ResponseInterface $response
+     * @return void
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws DecodingExceptionInterface
+     */
+    public function displayFinalMessage(SymfonyStyle $io, string $stock, ResponseInterface $response): void
+    {
+        switch ($response->getStatusCode()) {
+            case 200:
+                $responseMessage = $response->getContent();
+                $io->warning($responseMessage);
+                $this->logger->warning($responseMessage);
+                break;
+            case 201:
+                $successMessage = "Données $stock envoyées avec succès à l'API" . PHP_EOL;
+                $responseMessage = $response->getContent();
+                $io->success($successMessage);
+                $this->logger->info($successMessage . ' : ' . $responseMessage);
+                break;
+            default:
+                $content = $response->toArray();
+                $errorMessage = $content['error'] ?? "(PAS DE MESSAGE D'ERREUR)";
+                $io->error("Erreur lors de l'envoi des données $stock à l'API : " . $errorMessage);
+                $this->logger->error("Erreur lors de l'envoi des données $stock à l'API : " . $errorMessage);
+                break;
+        }
     }
 }
