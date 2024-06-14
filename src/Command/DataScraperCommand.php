@@ -24,8 +24,8 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 )]
 class DataScraperCommand extends Command
 {
-    private DataScraper $dataScraper;
-    private LoggerInterface $logger;
+    private readonly DataScraper $dataScraper;
+    private readonly LoggerInterface $logger;
 
     public function __construct(DataScraper $dataScraper, LoggerInterface $logger)
     {
