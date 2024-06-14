@@ -124,7 +124,7 @@ class DataScraper
     public function filterData(Crawler $crawler): array
     {
         return $crawler->filter('table > tbody > tr > td')
-            ->each(fn ($node) => $node->text('rien à afficher'));
+            ->each(fn ($node) => $node->text() ?: 'rien à afficher');
     }
 
     /**

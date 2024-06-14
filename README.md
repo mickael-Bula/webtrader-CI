@@ -1,3 +1,12 @@
+Ce projet permet de récupérer les données boursières pour les enregistrer en base de données.
+Pour lancer la commande, il faut :
+
+- lancer le serveur de Laragon (veiller à ce que Wampserver soit arrêté pour éviter tout conflit)
+- se déplacer à la racine du projet
+- lancer la commande : `$ php bin/console app:data:scraper`
+
+Le script s'occupa alors de scraper les données et de les enregistrer en base de données.
+
 # Codeception : commandes utiles
 
 ```bash
@@ -6,7 +15,6 @@ php vendor\bin\codecept run Functional  # lance les tests du répertoire indiqu�
 php vendor\bin\codecept clean   # supprime le cache de codeception
 php vendor\bin\codecept build   # reconstruit les classes de test
 php vendor\bin\codecept run unit --filter getData  # teste uniquement la méthode getData du répertoire Unit
-
 ```
 
 ## Ajout du module CLI de Codeception
