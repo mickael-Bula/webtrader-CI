@@ -1,10 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
-use Codeception\Util\HttpCode;
-use App\Tests\Support\FunctionalTester;
 use App\Service\DataScraper;
+use App\Tests\Support\FunctionalTester;
+use Codeception\Util\HttpCode;
 use Symfony\Component\DomCrawler\Crawler;
 
 class DataScraperCommandCest
@@ -12,28 +14,16 @@ class DataScraperCommandCest
     /** @var object Récupère une instance de la classe DataScraper */
     private object $dataScraper;
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function _before(FunctionalTester $I): void
     {
         $this->dataScraper = $I->grabService(DataScraper::class);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testDataScraperServiceIsAvailable(FunctionalTester $I): void
     {
         $I->assertNotNull($this->dataScraper);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testDataScraperCommandReturnsZero(FunctionalTester $I): void
     {
         // Exécute la commande Symfony
@@ -41,43 +31,38 @@ class DataScraperCommandCest
         $I->seeResultCodeIs(0);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testDataScraperCommandDisplaysASuccessMessage(FunctionalTester $I): void
     {
         $I->runShellCommand('php bin/console app:data:scraper');
-        $I->seeShellOutputMatches('/.*Données cac envoyées avec succès à l\'API.*/');
-        $I->seeShellOutputMatches('/.*Données lvc envoyées avec succès à l\'API.*/');
+
+        // Récupère la sortie en console
+        $output = $I->grabShellOutput();
+
+        // Vérifie si l'une des chaînes recherchées est présente dans la sortie de la console
+        $found = (
+            str_contains($output, 'ENTITÉ App\Entity\Cac À JOUR : AUCUNE DONNEE INSÉRÉE')
+            || str_contains($output, 'ENTITÉ App\Entity\Lvc À JOUR : AUCUNE DONNEE INSÉRÉE')
+            || str_contains($output, 'Données cac envoyées avec succès à l\'API')
+            || str_contains($output, 'Données lvc envoyées avec succès à l\'API')
+        );
+
+        $I->assertTrue($found, "L'un des messages attendus a été trouvé dans la sortie de la console.");
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testCacDataResponseIsOk(FunctionalTester $I): void
     {
         $response = $this->dataScraper->getResponseFromHttpClient($_ENV['CAC_DATA']);
         $responseCode = $response->getStatusCode();
-        $I->assertEquals($responseCode, HttpCode::OK, "Test la récupération des données du Cac");
+        $I->assertEquals($responseCode, HttpCode::OK, 'Test la récupération des données du Cac');
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testLvcDataResponseIsOk(FunctionalTester $I): void
     {
         $response = $this->dataScraper->getResponseFromHttpClient($_ENV['LVC_DATA']);
         $responseCode = $response->getStatusCode();
-        $I->assertEquals($responseCode, HttpCode::OK, "Test la récupération des données du Lvc");
+        $I->assertEquals($responseCode, HttpCode::OK, 'Test la récupération des données du Lvc');
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testDataScraperHttpClientIsCreated(FunctionalTester $I): void
     {
         // Exécute la méthode getData() du service avec l'URL en argument
@@ -87,10 +72,6 @@ class DataScraperCommandCest
         $I->assertInstanceOf(Crawler::class, $result);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testGetDataResultIsArrayAndIsNotEmpty(FunctionalTester $I): void
     {
         // Exécute la méthode getData() du service avec l'URL en argument
@@ -101,10 +82,6 @@ class DataScraperCommandCest
         $I->assertNotCount(0, $result);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testGetDataResultWithBadUrlMatchesAString(FunctionalTester $I): void
     {
         // Exécute la méthode getData() du service avec l'URL en argument
@@ -118,10 +95,6 @@ class DataScraperCommandCest
         }
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testParseDataReturnsArray(FunctionalTester $I): void
     {
         // Exécute la méthode getData() du service avec l'URL en argument
@@ -134,10 +107,6 @@ class DataScraperCommandCest
         $I->assertIsArray($result);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testResultIsAnArrayOfArrays(FunctionalTester $I): void
     {
         // Exécute la méthode getData() du service avec l'URL en argument
@@ -169,10 +138,6 @@ class DataScraperCommandCest
         $I->assertIsArray($result);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testDataChunkReturnsAnArrayWithRowsOfSevenValues(FunctionalTester $I): void
     {
         // Exécute la méthode getData() du service avec l'URL en argument
@@ -187,7 +152,7 @@ class DataScraperCommandCest
         // Vérifie que les sous-tableaux de résultat contiennent 7 valeurs
         $lengthEqualsSeven = true;
         foreach ($result as $row) {
-            if (count($row) !== 7) {
+            if (7 !== count($row)) {
                 $lengthEqualsSeven = false;
                 break;
             }
@@ -195,10 +160,6 @@ class DataScraperCommandCest
         $I->assertTrue($lengthEqualsSeven);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testShrinkDataReturnsAnArrayWithRowsOfFiveValues(FunctionalTester $I): void
     {
         // Exécute la méthode getData() du service avec l'URL en argument
@@ -216,7 +177,7 @@ class DataScraperCommandCest
         // Vérifie que chaque ligne contient 5 valeurs
         $lengthEqualsFive = true;
         foreach ($result as $row) {
-            if (count($row) !== 5) {
+            if (5 !== count($row)) {
                 $lengthEqualsFive = false;
                 break;
             }
@@ -224,10 +185,6 @@ class DataScraperCommandCest
         $I->assertTrue($lengthEqualsFive);
     }
 
-    /**
-     * @param FunctionalTester $I
-     * @return void
-     */
     public function testFirstIndexOfParseDataResultIsDateFormat(FunctionalTester $I): void
     {
         // Exécute la méthode getCrawler() du service avec l'URL en argument

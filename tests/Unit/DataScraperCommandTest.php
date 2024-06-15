@@ -1,24 +1,23 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit;
 
-use Exception;
-use App\Service\DataScraper;
-use Psr\Log\LoggerInterface;
-use PHPUnit\Framework\TestCase;
 use App\Command\DataScraperCommand;
+use App\Service\DataScraper;
+use Exception;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Cette classe de test utilise uniquement phpUnit
+ * Cette classe de test utilise uniquement phpUnit.
  */
 class DataScraperCommandTest extends TestCase
 {
-    /**
-     * @return void
-     */
     public function testCommandReturnsOneWhenResponseIsAnEmptyArray(): void
     {
         // Crée un mock de HttpClientInterface
@@ -59,9 +58,6 @@ class DataScraperCommandTest extends TestCase
         $this->assertStringContainsString('Aucune donnée cac récupérée depuis le site', $output);
     }
 
-    /**
-     * @return void
-     */
     public function testCommandHandlesExceptionFromDataScraper(): void
     {
         // Crée un mock de HttpClientInterface
@@ -82,7 +78,7 @@ class DataScraperCommandTest extends TestCase
 
         // Configure le double pour qu'il lance une exception lors de l'appel à getData()
         $dataScraperMock->method('getData')
-            ->willThrowException(new Exception('Erreur lors de la récupération des données'));
+            ->willThrowException(new \Exception('Erreur lors de la récupération des données'));
 
         // Crée une instance de la commande DataScraperCommand
         $application = new Application();

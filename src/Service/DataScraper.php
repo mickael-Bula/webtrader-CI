@@ -1,19 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Service;
 
-use JsonException;
-use RuntimeException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Contracts\HttpClient\ResponseInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class DataScraper
 {
@@ -26,7 +26,7 @@ class DataScraper
      * @throws ServerExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ClientExceptionInterface
-     * @throws JsonException
+     * @throws \JsonException
      */
     public function __construct(HttpClientInterface $client, LoggerInterface $logger)
     {
@@ -41,8 +41,6 @@ class DataScraper
     }
 
     /**
-     * @param $url
-     * @return ResponseInterface
      * @throws TransportExceptionInterface
      */
     public function getResponseFromHttpClient($url): ResponseInterface
@@ -51,8 +49,6 @@ class DataScraper
     }
 
     /**
-     * @param $url
-     * @return Crawler
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
@@ -69,10 +65,6 @@ class DataScraper
         return new Crawler($htmlContent);
     }
 
-    /**
-     * @param $url
-     * @return array|string
-     */
     public function getData($url): array|string
     {
         try {
@@ -81,20 +73,12 @@ class DataScraper
             return $this->parseData($crawler);
         } catch (
             ClientExceptionInterface|TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
-            $errorMessage = sprintf("Erreur lors de la création du crawler : %s", $e->getMessage());
-            $this->logger->error($errorMessage);
-            throw new RuntimeException(
-                $errorMessage,
-                1,
-                $e
-            );
-        }
+                $errorMessage = sprintf('Erreur lors de la création du crawler : %s', $e->getMessage());
+                $this->logger->error($errorMessage);
+                throw new \RuntimeException($errorMessage, 1, $e);
+            }
     }
 
-    /**
-     * @param Crawler $crawler
-     * @return array
-     */
     public function parseData(Crawler $crawler): array
     {
         $rawData = $this->filterData($crawler);
@@ -106,7 +90,7 @@ class DataScraper
         $shrinkData = $this->shrinkData($splitData);
 
         // On trie $shrinkData en vérifiant que le premier indice est une date au format dd/mm/yyyy
-        $data = array_filter($shrinkData, static fn($row) => preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0]));
+        $data = array_filter($shrinkData, static fn ($row) => preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0]));
 
         // Si le marché est ouvert, je supprime la valeur du jour courant du tableau de résultats
         if ($this->isOpened()) {
@@ -117,10 +101,6 @@ class DataScraper
         return $this->getFilteredData($data);
     }
 
-    /**
-     * @param Crawler $crawler
-     * @return array
-     */
     public function filterData(Crawler $crawler): array
     {
         return $crawler->filter('table > tbody > tr > td')
@@ -128,9 +108,7 @@ class DataScraper
     }
 
     /**
-     * La fonction array_chunk() divise le tableau passé en paramètre avec une taille fixée par le second
-     * @param array $data
-     * @return array
+     * La fonction array_chunk() divise le tableau passé en paramètre avec une taille fixée par le second.
      */
     public function dataChunk(array $data): array
     {
@@ -138,27 +116,20 @@ class DataScraper
     }
 
     /**
-     * Réduit chacune des lignes d'un tableau à ses 5 premiers indices
-     * @param array $data
-     * @return array
+     * Réduit chacune des lignes d'un tableau à ses 5 premiers indices.
      */
     public function shrinkData(array $data): array
     {
-        return array_map(static fn($chunk) => array_slice($chunk, 0, 5), $data);
+        return array_map(static fn ($chunk) => array_slice($chunk, 0, 5), $data);
     }
 
-    /**
-     * @return bool
-     */
     public function isOpened(): bool
     {
-        return (int)date('w') >= 1 && (int)date('w') <= 5 && date('G') <= 18;
+        return (int) date('w') >= 1 && (int) date('w') <= 5 && date('G') <= 18;
     }
 
     /**
-     * Supprime le premier indice du tableau
-     * @param array $data
-     * @return array
+     * Supprime le premier indice du tableau.
      */
     public function deleteFirstIndex(array $data): array
     {
@@ -169,21 +140,16 @@ class DataScraper
     }
 
     /**
-     * Filtre le tableau de résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower)
-     * @param array $data
-     * @return array
+     * Filtre le tableau de résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower).
      */
     public function getFilteredData(array $data): array
     {
-        return array_map(static fn($chunk) => array_slice($chunk, 0, 5), $data);
+        return array_map(static fn ($chunk) => array_slice($chunk, 0, 5), $data);
     }
 
     /**
-     * @param array $array
-     * @param string $stock
-     * @return ResponseInterface
      * @throws ClientExceptionInterface
-     * @throws JsonException
+     * @throws \JsonException
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
@@ -197,16 +163,13 @@ class DataScraper
             "{$_ENV['API']}/api/stocks/$stock",
             [
                 'headers' => ['Authorization' => "Bearer $this->token"],
-                'json' => $json
+                'json' => $json,
             ]
         );
     }
 
     /**
-     * @param array $array
-     * @param string $stock
-     * @return string
-     * @throws JsonException
+     * @throws \JsonException
      */
     public function serializeData(array $array, string $stock): string
     {
@@ -222,14 +185,9 @@ class DataScraper
         return json_encode($data, JSON_THROW_ON_ERROR);
     }
 
-    /**
-     * @param array $data
-     * @param string $stock
-     * @return array
-     */
     public function convertStringToFloat(array $data, string $stock): array
     {
-        if ($stock ==='cac') {
+        if ('cac' === $stock) {
             return array_map(static function ($item) {
                 return [
                     'createdAt' => $item['createdAt'],
@@ -254,8 +212,9 @@ class DataScraper
 
     /**
      * @return mixed|null
+     *
      * @throws ClientExceptionInterface
-     * @throws JsonException
+     * @throws \JsonException
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
@@ -265,7 +224,7 @@ class DataScraper
         $user = $_ENV['USER'];
         $password = $_ENV['PASSWORD'];
 
-        $credentials = ["username" => $user, "password" => $password];
+        $credentials = ['username' => $user, 'password' => $password];
 
         // Récupération du token
         $tokenResponse = $this->client
@@ -293,35 +252,39 @@ class DataScraper
     }
 
     /**
-     * @param SymfonyStyle $io
-     * @param string $stock
-     * @param ResponseInterface $response
-     * @return void
      * @throws ClientExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      * @throws DecodingExceptionInterface
+     * @throws \JsonException
      */
     public function displayFinalMessage(SymfonyStyle $io, string $stock, ResponseInterface $response): void
     {
         switch ($response->getStatusCode()) {
             case 200:
-                $responseMessage = $response->getContent();
+                $responseContent = $response->getContent();
+                $decodedResponseMessage = json_decode($responseContent, true, 512, JSON_THROW_ON_ERROR);
+
+                // Si le contenu de la réponse n'est pas encodé en JSON, le contenu original est utilisé comme fallback.
+                $responseMessage = JSON_ERROR_NONE === json_last_error()
+                    ? $decodedResponseMessage
+                    : $responseContent;
+
                 $io->warning($responseMessage);
                 $this->logger->warning($responseMessage);
                 break;
             case 201:
-                $successMessage = "Données $stock envoyées avec succès à l'API" . PHP_EOL;
+                $successMessage = "Données $stock envoyées avec succès à l'API".PHP_EOL;
                 $responseMessage = $response->getContent();
                 $io->success($successMessage);
-                $this->logger->info($successMessage . ' : ' . $responseMessage);
+                $this->logger->info($successMessage.' : '.$responseMessage);
                 break;
             default:
                 $content = $response->toArray();
                 $errorMessage = $content['error'] ?? "(PAS DE MESSAGE D'ERREUR)";
-                $io->error("Erreur lors de l'envoi des données $stock à l'API : " . $errorMessage);
-                $this->logger->error("Erreur lors de l'envoi des données $stock à l'API : " . $errorMessage);
+                $io->error("Erreur lors de l'envoi des données $stock à l'API : ".$errorMessage);
+                $this->logger->error("Erreur lors de l'envoi des données $stock à l'API : ".$errorMessage);
                 break;
         }
     }
