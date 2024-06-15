@@ -1,12 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Unit;
 
-use Exception;
-use Codeception\Stub;
 use App\Service\DataScraper;
-use Psr\Log\LoggerInterface;
 use App\Tests\Support\UnitTester;
+use Codeception\Stub;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class DataScraperCest
@@ -14,7 +15,7 @@ class DataScraperCest
     private DataScraper $dataScraper;
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     public function _before(): void
     {
@@ -30,64 +31,44 @@ class DataScraperCest
         );
     }
 
-    /**
-     * @param UnitTester $I
-     * @return void
-     */
     public function testISOPENEDMethodReturnsTrueOnWeekDaysIfHourIsBeforeEighteen(UnitTester $I): void
     {
-        if ((int)date('w') >= 1 && (int)date('w') <= 5 && date('G') <= 18) {
+        if ((int) date('w') >= 1 && (int) date('w') <= 5 && date('G') <= 18) {
             $I->assertTrue($this->dataScraper->isOpened());
         } else {
             $I->markTestSkipped("Le test ne peut être joué qu'avant 18:00");
         }
     }
 
-    /**
-     * @param UnitTester $I
-     * @return void
-     */
     public function testISOPENEDMethodReturnsFalseOnWeekDaysIfHourIsAfterEighteen(UnitTester $I): void
     {
-        if ((int)date('w') >= 1 && (int)date('w') <= 5 && date('G') <= 18) {
+        if ((int) date('w') >= 1 && (int) date('w') <= 5 && date('G') <= 18) {
             $I->assertFalse($this->dataScraper->isOpened(), 'Le marché est fermé en semaine avant 18:00');
-        } else if (in_array((int)date('w'), [0, 6], true)) {
+        } elseif (in_array((int) date('w'), [0, 6], true)) {
             $I->assertFalse($this->dataScraper->isOpened(), 'Le marché est fermé les jours de week-end');
         } else {
             $I->markTestSkipped("Le test ne peut être joué que s'il est plus de 18:00 un jour de semaine");
         }
     }
 
-    /**
-     * @param UnitTester $I
-     * @return void
-     */
     public function testISOPENEDMethodReturnsFalseOnSaturday(UnitTester $I): void
     {
-        if (date('w') === '6') {
+        if ('6' === date('w')) {
             $I->assertFalse($this->dataScraper->isOpened());
         } else {
-            $I->markTestSkipped("Le test ne peut être joué que le samedi");
+            $I->markTestSkipped('Le test ne peut être joué que le samedi');
         }
     }
 
-    /**
-     * @param UnitTester $I
-     * @return void
-     */
     public function testISOPENEDMethodWillReturnsFalseOnSunday(UnitTester $I): void
     {
-        if (date('w') === '0') {
+        if ('0' === date('w')) {
             $I->assertFalse($this->dataScraper->isOpened());
         } else {
-            $I->markTestSkipped("Le test ne peut être joué que le dimanche");
+            $I->markTestSkipped('Le test ne peut être joué que le dimanche');
         }
     }
 
-    /**
-     * @param UnitTester $I
-     * @return void
-     */
     public function testDeleteFirstIndex(UnitTester $I): void
     {
         $data = ['element1', 'element2', 'element3'];

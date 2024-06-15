@@ -5,7 +5,7 @@ Pour lancer la commande, il faut :
 - se déplacer à la racine du projet
 - lancer la commande : `$ php bin/console app:data:scraper`
 
-Le script s'occupa alors de scraper les données et de les enregistrer en base de données.
+Le script s'occupe alors de scraper les données et de les enregistrer en base.
 
 # Codeception : commandes utiles
 

@@ -1,14 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Command\DataScraperCommand;
 use App\Kernel;
 use App\Service\DataScraper;
 use Psr\Log\LoggerInterface;
-use App\Command\DataScraperCommand;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class DataScraperCommandTest extends KernelTestCase
 {
@@ -21,7 +23,6 @@ class DataScraperCommandTest extends KernelTestCase
 
     /**
      * @group functional-local
-     * @return void
      */
     public function testCommandIsSuccessful(): void
     {
