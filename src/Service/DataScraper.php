@@ -66,7 +66,7 @@ class DataScraper
     }
 
     /**
-     * @return string[][]|string
+     * @return string|string[][]
      */
     public function getData(string $url): array|string
     {
@@ -75,9 +75,10 @@ class DataScraper
 
             return $this->parseData($crawler);
         } catch (
-            ClientExceptionInterface|TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
+            ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
                 $errorMessage = sprintf('Erreur lors de la création du crawler : %s', $e->getMessage());
                 $this->logger->error($errorMessage);
+
                 throw new \RuntimeException($errorMessage, 1, $e);
             }
     }
@@ -96,7 +97,7 @@ class DataScraper
         $shrinkData = $this->shrinkData($splitData);
 
         // On trie $shrinkData en vérifiant que le premier indice est une date au format dd/mm/yyyy
-        $data = array_filter($shrinkData, static fn ($row) => preg_match("/^\d{2}\/\d{2}\/\d{4}$/", $row[0]));
+        $data = array_filter($shrinkData, static fn ($row) => preg_match('/^\\d{2}\\/\\d{2}\\/\\d{4}$/', $row[0]));
 
         // Si le marché est ouvert, je supprime la valeur du jour courant du tableau de résultats
         if ($this->isOpened()) {
@@ -113,7 +114,8 @@ class DataScraper
     public function filterData(Crawler $crawler): array
     {
         return $crawler->filter('table > tbody > tr > td')
-            ->each(fn ($node) => $node->text() ?: 'rien à afficher');
+            ->each(fn ($node) => $node->text() ?: 'rien à afficher')
+        ;
     }
 
     /**
@@ -184,9 +186,9 @@ class DataScraper
 
         return $this->client->request(
             'POST',
-            "{$_ENV['API']}/api/stocks/$stock",
+            "{$_ENV['API']}/api/stocks/{$stock}",
             [
-                'headers' => ['Authorization' => "Bearer $this->token"],
+                'headers' => ['Authorization' => "Bearer {$this->token}"],
                 'json' => $json,
             ]
         );
@@ -263,7 +265,8 @@ class DataScraper
                 'POST',
                 "{$_ENV['API']}/api/login_check",
                 ['json' => $credentials]
-            );
+            )
+        ;
 
         // Récupération du contenu de la réponse
         $content = $tokenResponse->getContent();
@@ -304,18 +307,23 @@ class DataScraper
 
                 $io->warning($responseMessage);
                 $this->logger->warning($responseMessage);
+
                 break;
+
             case 201:
-                $successMessage = "Données $stock envoyées avec succès à l'API".PHP_EOL;
+                $successMessage = "Données {$stock} envoyées avec succès à l'API".PHP_EOL;
                 $responseMessage = $response->getContent();
                 $io->success($successMessage);
                 $this->logger->info($successMessage.' : '.$responseMessage);
+
                 break;
+
             default:
                 $content = $response->toArray();
                 $errorMessage = $content['error'] ?? "(PAS DE MESSAGE D'ERREUR)";
-                $io->error("Erreur lors de l'envoi des données $stock à l'API : ".$errorMessage);
-                $this->logger->error("Erreur lors de l'envoi des données $stock à l'API : ".$errorMessage);
+                $io->error("Erreur lors de l'envoi des données {$stock} à l'API : ".$errorMessage);
+                $this->logger->error("Erreur lors de l'envoi des données {$stock} à l'API : ".$errorMessage);
+
                 break;
         }
     }
