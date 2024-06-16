@@ -78,3 +78,13 @@ la manière de procéder est la suivante :
 
 Ceci permet de ne pas couvrir la partie des tests qui n'a pas été écrite,
 mais qui doit être utilisée pour la découverte des symboles.
+
+#### Correction des variables d'environnement pour commiter depuis phpstorm
+
+Avec l'ajout de **grumphp** qui nécessite l'utilisation d'une version de php >= 8.1.17,
+je me suis aperçu que l'ajout d'un commit depuis phpstorm était mal configurée.
+En effet, l'outil git de phpstorm récupère la version de php dans le PATH pour lancer les étapes de pré-commit.
+Or, la version déclarée dans le PATH était 8.1.10.
+
+Après modification de la version de php déclarée dans le PATH system et utilisé par git,
+j'ai pu faire mes commits avec la bonne version de php et sans rencontrer d'erreur.
