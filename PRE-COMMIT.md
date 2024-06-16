@@ -1,6 +1,7 @@
 ## EXEMPLE DE FICHIER PRE-COMMIT
 
-Exemple de fichier permettant de jouer les tests avant chaque commit :
+Exemple de fichier permettant de jouer les tests avant chaque commit.
+Le chemin vers ces fichiers est `C:\laragon\www\webtrader_CI\.git\hooks` :
 
 ```bash
 #!/bin/sh
