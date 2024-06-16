@@ -48,7 +48,8 @@ class DataScraperCommand extends Command
 
         // Affiche la date et l'heure de lancement du script dans le terminal et dans le fichier de log
         $startTime = new \DateTime();
-        $message = sprintf('[%s] LANCEMENT DE LA RÉCUPÉRATION DES DONNÉES BOURSIÈRES',
+        $message = sprintf(
+            '[%s] LANCEMENT DE LA RÉCUPÉRATION DES DONNÉES BOURSIÈRES',
             $startTime->format('d-m-Y H:i:s')
         );
         $io->writeln($message);
@@ -59,19 +60,20 @@ class DataScraperCommand extends Command
         foreach ($stocks as $stock => $value) {
             $iterationTime = (new \DateTime())->format('d-m-Y H:i:s');
             $io->writeln(sprintf('[%s] SCRAPING DES DONNÉES DU %s', $iterationTime, strtoupper($stock)));
+
             try {
                 // Appel du service DataScraper pour récupérer les cotations
                 $stockData = $this->dataScraper->getData($value);
             } catch (\Exception $e) {
                 // Si une exception est levée, afficher l'erreur et retourner un code d'échec
-                $io->error("Erreur lors de la récupération des données $stock : ".$e->getMessage());
+                $io->error("Erreur lors de la récupération des données {$stock} : ".$e->getMessage());
 
                 return Command::FAILURE;
             }
 
             // Si le résultat est un tableau vide, c'est qu'aucune donnée n'a été récupérée
             if (!is_array($stockData) || 0 === count($stockData)) {
-                $errorMessage = "Aucune donnée $stock récupérée depuis le site";
+                $errorMessage = "Aucune donnée {$stock} récupérée depuis le site";
                 $io->error($errorMessage);
                 $this->logger->error($errorMessage);
 
@@ -89,7 +91,9 @@ class DataScraperCommand extends Command
         $duration = $startTime->diff($endTime);
         $message = sprintf(
             '[%s] FIN DE LA RÉCUPÉRATION DES DONNÉES BOURSIÈRES | DURÉE %02dm:%02ds',
-            $endTime->format('d-m-Y H:i:s'), $duration->i, $duration->s
+            $endTime->format('d-m-Y H:i:s'),
+            $duration->i,
+            $duration->s
         );
         $io->writeln($message);
         $this->logger->info($message);
