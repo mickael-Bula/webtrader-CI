@@ -64,3 +64,17 @@ Or, la version de php utilisée est bien >= à 8.1.17.
 
 J'ai pu passer outre le problème en exécutant le commit depuis la console.
 Il semblerait donc qu'il y ait une différence entre les versions utilisées pour commiter entre console et phpstorm...
+
+#### Exclure certains répertoires de l'analyse
+
+La vérification du code devant se concentrer sur le code produit à l'exclusion du code tiers,
+la manière de procéder est la suivante :
+
+```yml
+    excludePaths:
+        analyse:
+            - tests/Support
+```
+
+Ceci permet de ne pas couvrir la partie des tests qui n'a pas été écrite,
+mais qui doit être utilisée pour la découverte des symboles.

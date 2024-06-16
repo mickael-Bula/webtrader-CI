@@ -6,6 +6,10 @@ parameters:
             config: .php-cs-fixer.dist.php
         phpunit:
             config_file: phpunit.xml.dist
+        phpstan:
+            configuration: phpstan.neon
+            level: 6
+            triggered_by: [ 'php' ]
         yamllint:
             exception_on_invalid_type: false
             ignore_patterns:

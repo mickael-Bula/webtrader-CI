@@ -43,7 +43,7 @@ class DataScraper
     /**
      * @throws TransportExceptionInterface
      */
-    public function getResponseFromHttpClient($url): ResponseInterface
+    public function getResponseFromHttpClient(string $url): ResponseInterface
     {
         return $this->client->request('GET', $url);
     }
@@ -54,7 +54,7 @@ class DataScraper
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function getCrawler($url): Crawler
+    public function getCrawler(string $url): Crawler
     {
         $response = $this->GetResponseFromHttpClient($url);
 
@@ -65,7 +65,10 @@ class DataScraper
         return new Crawler($htmlContent);
     }
 
-    public function getData($url): array|string
+    /**
+     * @return string[][]|string
+     */
+    public function getData(string $url): array|string
     {
         try {
             $crawler = $this->getCrawler($url);
@@ -79,6 +82,9 @@ class DataScraper
             }
     }
 
+    /**
+     * @return string[][]
+     */
     public function parseData(Crawler $crawler): array
     {
         $rawData = $this->filterData($crawler);
@@ -101,6 +107,9 @@ class DataScraper
         return $this->getFilteredData($data);
     }
 
+    /**
+     * @return string[]
+     */
     public function filterData(Crawler $crawler): array
     {
         return $crawler->filter('table > tbody > tr > td')
@@ -109,6 +118,10 @@ class DataScraper
 
     /**
      * La fonction array_chunk() divise le tableau passé en paramètre avec une taille fixée par le second.
+     *
+     * @param string[] $data
+     *
+     * @return string[][]
      */
     public function dataChunk(array $data): array
     {
@@ -117,6 +130,10 @@ class DataScraper
 
     /**
      * Réduit chacune des lignes d'un tableau à ses 5 premiers indices.
+     *
+     * @param string[][] $data
+     *
+     * @return string[][]
      */
     public function shrinkData(array $data): array
     {
@@ -130,6 +147,10 @@ class DataScraper
 
     /**
      * Supprime le premier indice du tableau.
+     *
+     * @param string[][] $data
+     *
+     * @return string[][]
      */
     public function deleteFirstIndex(array $data): array
     {
@@ -141,6 +162,10 @@ class DataScraper
 
     /**
      * Filtre le tableau de résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower).
+     *
+     * @param string[][] $data
+     *
+     * @return string[][]
      */
     public function getFilteredData(array $data): array
     {
@@ -148,11 +173,10 @@ class DataScraper
     }
 
     /**
-     * @throws ClientExceptionInterface
-     * @throws \JsonException
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
+     * @param string[][] $array
+     *
      * @throws TransportExceptionInterface
+     * @throws \JsonException
      */
     public function sendData(array $array, string $stock): ResponseInterface
     {
@@ -169,6 +193,8 @@ class DataScraper
     }
 
     /**
+     * @param string[][] $array
+     *
      * @throws \JsonException
      */
     public function serializeData(array $array, string $stock): string
@@ -185,6 +211,11 @@ class DataScraper
         return json_encode($data, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @param string[][] $data
+     *
+     * @return string[][]
+     */
     public function convertStringToFloat(array $data, string $stock): array
     {
         if ('cac' === $stock) {
@@ -253,10 +284,10 @@ class DataScraper
 
     /**
      * @throws ClientExceptionInterface
+     * @throws DecodingExceptionInterface
      * @throws RedirectionExceptionInterface
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
-     * @throws DecodingExceptionInterface
      * @throws \JsonException
      */
     public function displayFinalMessage(SymfonyStyle $io, string $stock, ResponseInterface $response): void
