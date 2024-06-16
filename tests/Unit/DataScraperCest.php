@@ -71,8 +71,8 @@ class DataScraperCest
 
     public function testDeleteFirstIndex(UnitTester $I): void
     {
-        $data = ['element1', 'element2', 'element3'];
-        $expectedData = ['element2', 'element3'];
+        $data = [['element1', 'element2', 'element3'], ['element4', 'element5', 'element6']];
+        $expectedData = [['element4', 'element5', 'element6']];
 
         $result = $this->dataScraper->deleteFirstIndex($data);
 
