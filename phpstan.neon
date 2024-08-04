@@ -1,6 +1,5 @@
 parameters:
     level: 6
-    cacheDir: C:\Users\bulam\AppData\Local\Temp\phpstan
     paths:
         - bin/
         - config/

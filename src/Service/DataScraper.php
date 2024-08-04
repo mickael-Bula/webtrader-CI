@@ -96,16 +96,23 @@ class DataScraper
         // Filtre les résultats pour ne récupérer que les données utiles (date, closing, opening, higher, lower)
         $shrinkData = $this->shrinkData($splitData);
 
-        // On trie $shrinkData en vérifiant que le premier indice est une date au format dd/mm/yyyy
-        $data = array_filter($shrinkData, static fn ($row) => preg_match('/^\\d{2}\\/\\d{2}\\/\\d{4}$/', $row[0]));
+        // On trie $shrinkData en vérifiant que le premier indice est une date au format dd/mm/yyyy ou Jul 31, 2024
+        $pattern = '/^\d{2}\/\d{2}\/\d{4}$|^[A-Za-z]{3} \d{1,2}, \d{4}$/';
+        $data = array_filter($shrinkData, static fn ($row) => preg_match($pattern, $row[0]));
+
+        // On s'assure que les dates sont au format dd/mm/yyyy, attendu par l'API
+        foreach ($data as $key => $item) {
+            if (preg_match('/^[A-Za-z]{3} \d{1,2}, \d{4}$/', $item[0])) {
+                $data[$key][0] = \DateTime::createFromFormat('M d, Y', $item[0])->format('d/m/Y');
+            }
+        }
 
         // Si le marché est ouvert, je supprime la valeur du jour courant du tableau de résultats
         if ($this->isOpened()) {
             $data = $this->deleteFirstIndex($data);
         }
 
-        // Retourne le tableau contenant les seules données pertinentes
-        return $this->getFilteredData($data);
+        return $data;
     }
 
     /**
