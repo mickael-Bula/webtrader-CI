@@ -82,6 +82,7 @@
         "phpro/grumphp": "^2.6",
         "phpstan/phpstan": "^1.11",
         "phpunit/phpunit": "^10.5",
+        "rector/rector": "^1.2",
         "roave/security-advisories": "dev-latest",
         "symfony/maker-bundle": "^1.53"
     }

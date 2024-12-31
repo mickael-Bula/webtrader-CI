@@ -89,9 +89,9 @@ class DataScraperCommandCest
             $this->dataScraper->getData('bad/url');
             // Si aucune exception n'est levée, le test échoue
             $I->fail('Une exception aurait dû être levée pour une URL invalide.');
-        } catch (\RuntimeException $e) {
+        } catch (\RuntimeException $runtimeException) {
             // Vérifie que le message d'erreur contient la phrase attendue
-            $I->assertStringContainsString('Erreur lors de la création du crawler', $e->getMessage());
+            $I->assertStringContainsString('Erreur lors de la création du crawler', $runtimeException->getMessage());
         }
     }
 
@@ -124,6 +124,7 @@ class DataScraperCommandCest
                 break;
             }
         }
+
         $I->assertTrue($isArray);
     }
 
@@ -159,6 +160,7 @@ class DataScraperCommandCest
                 break;
             }
         }
+
         $I->assertTrue($lengthEqualsSeven);
     }
 
@@ -185,6 +187,7 @@ class DataScraperCommandCest
                 break;
             }
         }
+
         $I->assertTrue($lengthEqualsFive);
     }
 
@@ -205,6 +208,7 @@ class DataScraperCommandCest
                 break;
             }
         }
+
         $I->assertTrue($isDateFormat);
     }
 }
