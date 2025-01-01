@@ -58,7 +58,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "grumphp": "vendor\\bin\\grumphp run --ansi"
     },
     "conflict": {
         "symfony/symfony": "*"

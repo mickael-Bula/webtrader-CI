@@ -1,4 +1,4 @@
-# mise en place de grumphp
+# mise en place de grumPHP
 
 ## Installation
 
@@ -8,10 +8,10 @@ $ vendor\bin\grumphp configure
 $ vendor\bin\grumphp git:init
 ```
 
-## Exécution de grumphp
+## Exécution de grumPHP
 
 ```bash
-$ vendor\bin\grumphp run  # lancer grumphp
+$ vendor\bin\grumphp run  # lancer grumPHP
 $ vendor\bin\grumphp run --files path/to/your/file.php  # lancer un fichier particulier
 $ vendor\bin\grumphp list # affiche la liste des tâches disponibles
 ```
@@ -47,9 +47,9 @@ parameters:
 > 
 >`Error: Your version of PHP is affected by serious garbage collector bugs related to fibers. Please upgrade to a newer version of PHP, i.e. >= 8.1.17 or => 8.2.4`
 
-Après avoir téléchargé et configuré la nouvelle version de php, j'ai pu lancer `grumphp` sans erreurs.
+Après avoir téléchargé et configuré la nouvelle version de php, j'ai pu lancer `grumPHP` sans erreurs.
 
-### Troubleshooting avec grumphp
+### Troubleshooting avec grumPHP
 
 J'ai rencontré une difficulté dans la validation des commits faits depuis phpstorm.
 En effet, malgré une exécution réussir de la commande `vendor\bin\grumphp run`,
@@ -81,10 +81,30 @@ mais qui doit être utilisée pour la découverte des symboles.
 
 #### Correction des variables d'environnement pour commiter depuis phpstorm
 
-Avec l'ajout de **grumphp** qui nécessite l'utilisation d'une version de php >= 8.1.17,
+Avec l'ajout de **grumPHP** qui nécessite l'utilisation d'une version de php >= 8.1.17,
 je me suis aperçu que l'ajout d'un commit depuis phpstorm était mal configurée.
 En effet, l'outil git de phpstorm récupère la version de php dans le PATH pour lancer les étapes de pré-commit.
 Or, la version déclarée dans le PATH était 8.1.10.
 
 Après modification de la version de php déclarée dans le PATH system et utilisé par git,
 j'ai pu faire mes commits avec la bonne version de php et sans rencontrer d'erreur.
+
+## Exécution de grumPHP depuis composer
+
+`grumPHP` peut être lancé avec **composer**, ce qui évite d'avoir à se souvenir de chemin complet :
+
+```json
+{
+  "scripts": {
+    "grumphp": "vendor\\bin\\grumphp run --ansi"
+  }
+}
+```
+
+Pour lancer la commande :
+
+```bash
+$ composer grumphp
+```
+
+L'ajout de l'option **--ansi** permet d'afficher les couleurs au lancement de la commande.
