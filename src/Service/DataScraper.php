@@ -100,7 +100,7 @@ class DataScraper
 
         // On trie $shrinkData en vérifiant que le premier indice est une date au format dd/mm/yyyy ou Jul 31, 2024
         $pattern = '/^\d{2}\/\d{2}\/\d{4}$|^[A-Za-z]{3} \d{1,2}, \d{4}$/';
-        $data = array_filter($shrinkData, static fn ($row): int|false => preg_match($pattern, $row[0]));
+        $data = array_filter($shrinkData, static fn ($row): false|int => preg_match($pattern, $row[0]));
 
         // On s'assure que les dates sont au format dd/mm/yyyy, attendu par l'API
         foreach ($data as $key => $item) {
@@ -122,8 +122,10 @@ class DataScraper
      */
     public function filterData(Crawler $crawler): array
     {
-        return $crawler->filter('table > tbody > tr > td')
-            ->each(fn ($node) => $node->text() ?: 'rien à afficher')
+        return $crawler->filter('table') // Filtre toutes les balises table
+            ->slice(0, 2) // Cible les deux premiers éléments table (index 0 et 1)
+            ->filter('tbody > tr > td') // Ensuite, filtre les éléments enfants
+            ->each(fn ($node) => $node->text() ?: 'rien à afficher') // Traite les données
         ;
     }
 

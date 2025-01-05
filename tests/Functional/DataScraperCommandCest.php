@@ -202,7 +202,7 @@ class DataScraperCommandCest
         // Vérifie que le premier indice de chaque ligne est une chaîne de caractère au format jj/mm/aaaa
         $isDateFormat = true;
         foreach ($result as $row) {
-            if (!preg_match('/^\\d{2}\\/\\d{2}\\/\\d{4}$/', $row[0])) {
+            if (!preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $row[0])) {
                 $isDateFormat = false;
 
                 break;
