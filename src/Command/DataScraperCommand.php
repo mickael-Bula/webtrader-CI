@@ -24,6 +24,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 class DataScraperCommand extends Command
 {
     private readonly DataScraper $dataScraper;
+
     private readonly LoggerInterface $logger;
 
     public function __construct(DataScraper $dataScraper, LoggerInterface $logger)
@@ -66,14 +67,14 @@ class DataScraperCommand extends Command
                 $stockData = $this->dataScraper->getData($value);
             } catch (\Exception $e) {
                 // Si une exception est levée, afficher l'erreur et retourner un code d'échec
-                $io->error("Erreur lors de la récupération des données {$stock} : ".$e->getMessage());
+                $io->error(sprintf('Erreur lors de la récupération des données %s : ', $stock).$e->getMessage());
 
                 return Command::FAILURE;
             }
 
             // Si le résultat est un tableau vide, c'est qu'aucune donnée n'a été récupérée
-            if (!is_array($stockData) || 0 === count($stockData)) {
-                $errorMessage = "Aucune donnée {$stock} récupérée depuis le site";
+            if (!is_array($stockData) || [] === $stockData) {
+                $errorMessage = sprintf('Aucune donnée %s récupérée depuis le site', $stock);
                 $io->error($errorMessage);
                 $this->logger->error($errorMessage);
 
@@ -86,6 +87,7 @@ class DataScraperCommand extends Command
             // Affiche le contenu de la réponse en fonction du code de retour
             $this->dataScraper->displayFinalMessage($io, $stock, $response);
         }
+
         // Affiche la date et l'heure de la fin du script dans le terminal et dans le fichier de log
         $endTime = new \DateTime();
         $duration = $startTime->diff($endTime);

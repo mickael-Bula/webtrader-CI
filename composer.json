@@ -58,7 +58,8 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "grumphp": "vendor\\bin\\grumphp run --ansi"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -73,7 +74,7 @@
         "codeception/codeception": "^5.1",
         "codeception/module-asserts": "^3.0",
         "codeception/module-cli": "^2.0",
-        "codeception/module-doctrine2": "^3.0",
+        "codeception/module-doctrine": "^3.1",
         "codeception/module-phpbrowser": "^3.0",
         "codeception/module-rest": "^3.3",
         "codeception/module-symfony": "^3.3",
@@ -82,6 +83,7 @@
         "phpro/grumphp": "^2.6",
         "phpstan/phpstan": "^1.11",
         "phpunit/phpunit": "^10.5",
+        "rector/rector": "^1.2",
         "roave/security-advisories": "dev-latest",
         "symfony/maker-bundle": "^1.53"
     }

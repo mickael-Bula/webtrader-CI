@@ -18,7 +18,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 class DataScraper
 {
     private HttpClientInterface $client;
+
     private LoggerInterface $logger;
+
     private mixed $token;
 
     /**
@@ -98,7 +100,7 @@ class DataScraper
 
         // On trie $shrinkData en vérifiant que le premier indice est une date au format dd/mm/yyyy ou Jul 31, 2024
         $pattern = '/^\d{2}\/\d{2}\/\d{4}$|^[A-Za-z]{3} \d{1,2}, \d{4}$/';
-        $data = array_filter($shrinkData, static fn ($row) => preg_match($pattern, $row[0]));
+        $data = array_filter($shrinkData, static fn ($row): false|int => preg_match($pattern, $row[0]));
 
         // On s'assure que les dates sont au format dd/mm/yyyy, attendu par l'API
         foreach ($data as $key => $item) {
@@ -109,7 +111,7 @@ class DataScraper
 
         // Si le marché est ouvert, je supprime la valeur du jour courant du tableau de résultats
         if ($this->isOpened()) {
-            $data = $this->deleteFirstIndex($data);
+            return $this->deleteFirstIndex($data);
         }
 
         return $data;
@@ -120,8 +122,10 @@ class DataScraper
      */
     public function filterData(Crawler $crawler): array
     {
-        return $crawler->filter('table > tbody > tr > td')
-            ->each(fn ($node) => $node->text() ?: 'rien à afficher')
+        return $crawler->filter('table') // Filtre toutes les balises table
+            ->slice(0, 2) // Cible les deux premiers éléments table (index 0 et 1)
+            ->filter('tbody > tr > td') // Ensuite, filtre les éléments enfants
+            ->each(fn ($node) => $node->text() ?: 'rien à afficher') // Traite les données
         ;
     }
 
@@ -146,7 +150,7 @@ class DataScraper
      */
     public function shrinkData(array $data): array
     {
-        return array_map(static fn ($chunk) => array_slice($chunk, 0, 5), $data);
+        return array_map(static fn ($chunk): array => array_slice($chunk, 0, 5), $data);
     }
 
     public function isOpened(): bool
@@ -178,7 +182,7 @@ class DataScraper
      */
     public function getFilteredData(array $data): array
     {
-        return array_map(static fn ($chunk) => array_slice($chunk, 0, 5), $data);
+        return array_map(static fn ($chunk): array => array_slice($chunk, 0, 5), $data);
     }
 
     /**
@@ -193,9 +197,9 @@ class DataScraper
 
         return $this->client->request(
             'POST',
-            "{$_ENV['API']}/api/stocks/{$stock}",
+            sprintf('%s/api/stocks/%s', $_ENV['API'], $stock),
             [
-                'headers' => ['Authorization' => "Bearer {$this->token}"],
+                'headers' => ['Authorization' => 'Bearer '.$this->token],
                 'json' => $json,
             ]
         );
@@ -228,7 +232,7 @@ class DataScraper
     public function convertStringToFloat(array $data, string $stock): array
     {
         if ('cac' === $stock) {
-            return array_map(static function ($item) {
+            return array_map(static function (array $item): array {
                 return [
                     'createdAt' => $item['createdAt'],
                     'closing' => (float) str_replace(['.', ','], ['', '.'], $item['closing']),
@@ -239,7 +243,7 @@ class DataScraper
             }, $data);
         }
 
-        return array_map(static function ($item) {
+        return array_map(static function (array $item): array {
             return [
                 'createdAt' => $item['createdAt'],
                 'closing' => (float) $item['closing'],
@@ -270,7 +274,7 @@ class DataScraper
         $tokenResponse = $this->client
             ->request(
                 'POST',
-                "{$_ENV['API']}/api/login_check",
+                $_ENV['API'].'/api/login_check',
                 ['json' => $credentials]
             )
         ;
@@ -318,7 +322,7 @@ class DataScraper
                 break;
 
             case 201:
-                $successMessage = "Données {$stock} envoyées avec succès à l'API".PHP_EOL;
+                $successMessage = sprintf('Données %s envoyées avec succès à l\'API', $stock).PHP_EOL;
                 $responseMessage = $response->getContent();
                 $io->success($successMessage);
                 $this->logger->info($successMessage.' : '.$responseMessage);
@@ -328,8 +332,8 @@ class DataScraper
             default:
                 $content = $response->toArray();
                 $errorMessage = $content['error'] ?? "(PAS DE MESSAGE D'ERREUR)";
-                $io->error("Erreur lors de l'envoi des données {$stock} à l'API : ".$errorMessage);
-                $this->logger->error("Erreur lors de l'envoi des données {$stock} à l'API : ".$errorMessage);
+                $io->error(sprintf('Erreur lors de l\'envoi des données %s à l\'API : ', $stock).$errorMessage);
+                $this->logger->error(sprintf('Erreur lors de l\'envoi des données %s à l\'API : ', $stock).$errorMessage);
 
                 break;
         }

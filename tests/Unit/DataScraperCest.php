@@ -27,7 +27,9 @@ class DataScraperCest
 
         // Crée un double de DataScraper avec une dépendance doublée et une méthode dont on force le retour
         $this->dataScraper = Stub::construct(
-            DataScraper::class, ['client' => $httpClientMock, 'logger' => $loggerMock], ['setToken' => 'token']
+            DataScraper::class,
+            ['client' => $httpClientMock, 'logger' => $loggerMock],
+            ['setToken' => 'token']
         );
     }
 
